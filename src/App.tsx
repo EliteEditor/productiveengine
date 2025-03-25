@@ -12,31 +12,37 @@ import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Sidebar from "./components/layout/Sidebar";
+import { TaskProvider } from "./contexts/TaskContext";
+import { GoalProvider } from "./contexts/GoalContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="focus-theme">
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="flex h-screen w-full overflow-hidden bg-background dark:bg-gray-950">
-          <Sidebar />
-          <div className="flex-1 overflow-auto">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/goals" element={<Goals />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/insights" element={<Insights />} />
-              <Route path="/settings" element={<Settings />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </div>
-      </BrowserRouter>
+      <TaskProvider>
+        <GoalProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <div className="flex h-screen w-full overflow-hidden bg-background dark:bg-gray-950">
+              <Sidebar />
+              <div className="flex-1 overflow-auto">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/insights" element={<Insights />} />
+                  <Route path="/settings" element={<Settings />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </div>
+          </BrowserRouter>
+        </GoalProvider>
+      </TaskProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
