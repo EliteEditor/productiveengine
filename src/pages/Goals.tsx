@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { Target, Filter, Plus, Calendar, Tag } from 'lucide-react';
+import { Target, Filter, Plus, Calendar, Tag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,7 +14,7 @@ import { useTaskContext } from '@/contexts/TaskContext';
 import { toast } from 'sonner';
 
 const Goals = () => {
-  const { goals, addGoal, toggleMilestone } = useGoalContext();
+  const { goals, addGoal, deleteGoal, toggleMilestone } = useGoalContext();
   const { categories } = useTaskContext();
   
   // State for filtering
@@ -193,6 +193,15 @@ const Goals = () => {
                           <Calendar size={14} className="mr-1" />
                           {goal.deadline}
                         </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                          onClick={() => deleteGoal(goal.id)}
+                          title="Delete goal"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
                       </div>
                     </div>
                     

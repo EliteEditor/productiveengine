@@ -1,15 +1,16 @@
 
 import React from 'react';
-import { CheckCircle2, Circle, Clock } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTaskContext } from '@/contexts/TaskContext';
+import { Button } from '@/components/ui/button';
 
 interface TaskSummaryProps {
   className?: string;
 }
 
 const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
-  const { tasks, toggleTaskStatus, categories } = useTaskContext();
+  const { tasks, toggleTaskStatus, deleteTask, categories } = useTaskContext();
   
   // Get today's tasks first, then upcoming tasks
   const todayTasks = tasks.filter(task => {
@@ -105,8 +106,19 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
                 )}
               </div>
               
-              <div className="ml-4">
-                {getPriorityBadge(task.priority)}
+              <div className="ml-2 flex items-center">
+                <div className="mr-2">
+                  {getPriorityBadge(task.priority)}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
+                  onClick={() => deleteTask(task.id)}
+                  title="Delete task"
+                >
+                  <Trash2 size={14} />
+                </Button>
               </div>
             </div>
           ))
