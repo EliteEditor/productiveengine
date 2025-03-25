@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ListTodo, LineChart, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, ListTodo, LineChart, Settings, Calendar, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -14,6 +14,16 @@ const navItems = [
     name: 'Tasks',
     path: '/tasks',
     icon: ListTodo
+  },
+  {
+    name: 'Goals',
+    path: '/goals',
+    icon: Target
+  },
+  {
+    name: 'Calendar',
+    path: '/calendar',
+    icon: Calendar
   },
   {
     name: 'Insights',
