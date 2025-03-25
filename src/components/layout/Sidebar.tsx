@@ -44,7 +44,7 @@ const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "h-screen sticky top-0 flex flex-col bg-white border-r border-gray-100 transition-all duration-300 ease-in-out z-30",
+        "h-screen sticky top-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
@@ -56,7 +56,7 @@ const Sidebar = () => {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-full bg-secondary hover:bg-gray-100 transition-all duration-200"
+          className="p-1.5 rounded-full bg-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
@@ -73,13 +73,13 @@ const Sidebar = () => {
                 className={cn(
                   "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group",
                   isActive 
-                    ? "bg-primary/5 text-primary font-medium" 
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary/5 text-primary font-medium dark:bg-primary/10" 
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                 )}
               >
                 <item.icon size={20} className={cn(
                   "transition-all",
-                  isActive ? "text-primary" : "text-gray-500 group-hover:text-gray-600"
+                  isActive ? "text-primary" : "text-gray-500 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"
                 )} />
                 {!collapsed && (
                   <span className="ml-3 whitespace-nowrap">{item.name}</span>
@@ -91,21 +91,6 @@ const Sidebar = () => {
             );
           })}
         </nav>
-      </div>
-
-      <div className="p-4 border-t border-gray-100">
-        {!collapsed ? (
-          <div className="px-3 py-3 rounded-lg bg-primary/5 text-primary/90 text-sm">
-            <p className="font-medium">Focus Coach</p>
-            <p className="text-xs text-gray-500 mt-1">Here to help you stay productive</p>
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-              <Settings size={16} />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

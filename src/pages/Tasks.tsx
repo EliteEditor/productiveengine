@@ -4,6 +4,11 @@ import Header from '@/components/layout/Header';
 import { ListPlus, Filter, Tag, Calendar, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 // Task status types
 type TaskStatus = 'pending' | 'completed';
@@ -61,6 +66,13 @@ const Tasks = () => {
     }
   ]);
 
+  // State for add task dialog
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskCategory, setTaskCategory] = useState<TaskCategory>('work');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDueDate, setTaskDueDate] = useState('');
+
   // Toggle task completion
   const toggleTaskStatus = (id: string) => {
     setTasks(prevTasks => 
@@ -70,19 +82,46 @@ const Tasks = () => {
     );
   };
 
+  // Add new task
+  const handleAddTask = () => {
+    if (taskTitle.trim() === '') {
+      toast.error('Task title cannot be empty');
+      return;
+    }
+
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: taskTitle,
+      status: 'pending',
+      category: taskCategory,
+      description: taskDescription || undefined,
+      dueDate: taskDueDate || undefined
+    };
+
+    setTasks([newTask, ...tasks]);
+    toast.success(`Task "${taskTitle}" added successfully!`);
+    
+    // Reset form and close dialog
+    setTaskTitle('');
+    setTaskCategory('work');
+    setTaskDescription('');
+    setTaskDueDate('');
+    setIsAddTaskOpen(false);
+  };
+
   // Get category styles
   const getCategoryStyles = (category: TaskCategory) => {
     switch (category) {
       case 'work':
-        return 'bg-blue-50 text-blue-700';
+        return 'bg-blue-50 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300';
       case 'personal':
-        return 'bg-green-50 text-green-700';
+        return 'bg-green-50 text-green-700 dark:bg-green-500/20 dark:text-green-300';
       case 'urgent':
-        return 'bg-rose-50 text-rose-700';
+        return 'bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300';
       case 'learning':
-        return 'bg-purple-50 text-purple-700';
+        return 'bg-purple-50 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300';
       default:
-        return 'bg-gray-50 text-gray-700';
+        return 'bg-gray-50 text-gray-700 dark:bg-gray-500/20 dark:text-gray-300';
     }
   };
 
@@ -92,31 +131,31 @@ const Tasks = () => {
       
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full animate-fade-in">
         <div className="mb-6 flex flex-wrap items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">Task Management</h1>
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-100">Task Management</h1>
           
           <div className="flex items-center mt-4 sm:mt-0 space-x-3">
-            <button className="flex items-center px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-              <Filter size={16} className="mr-2 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Filter</span>
+            <button className="flex items-center px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <Filter size={16} className="mr-2 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter</span>
             </button>
             
-            <Button className="flex items-center">
+            <Button className="flex items-center" onClick={() => setIsAddTaskOpen(true)}>
               <ListPlus size={16} className="mr-2" />
               <span className="text-sm font-medium">New Task</span>
             </Button>
           </div>
         </div>
         
-        <div className="glass rounded-xl p-5 card-shadow animate-scale-in">
+        <div className="glass rounded-xl p-5 card-shadow animate-scale-in dark:bg-gray-800/40 dark:border-gray-700">
           <div className="mb-4 flex flex-wrap gap-2">
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">All</span>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700">Work</span>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700">Personal</span>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-rose-50 text-rose-700">Urgent</span>
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-700">Learning</span>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">All</span>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">Work</span>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-300">Personal</span>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300">Urgent</span>
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300">Learning</span>
           </div>
           
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {tasks.map((task) => (
               <div 
                 key={task.id} 
@@ -132,18 +171,18 @@ const Tasks = () => {
                 <div className="flex-1 min-w-0">
                   <label 
                     htmlFor={`task-${task.id}`}
-                    className={`font-medium text-gray-800 mb-1 block ${task.status === 'completed' ? 'line-through text-gray-500' : ''}`}
+                    className={`font-medium text-gray-800 dark:text-gray-200 mb-1 block ${task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-500' : ''}`}
                   >
                     {task.title}
                   </label>
                   
                   {task.description && (
-                    <p className="text-sm text-gray-500 mb-2">{task.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{task.description}</p>
                   )}
                   
                   <div className="flex flex-wrap gap-2 mt-2">
                     {task.dueDate && (
-                      <span className="inline-flex items-center text-xs text-gray-500">
+                      <span className="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
                         <Calendar size={12} className="mr-1" />
                         {task.dueDate}
                       </span>
@@ -157,12 +196,12 @@ const Tasks = () => {
                 </div>
                 
                 <div className="flex items-center space-x-1">
-                  <button className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                  <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                     </svg>
                   </button>
-                  <button className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                  <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
@@ -173,6 +212,62 @@ const Tasks = () => {
           </div>
         </div>
       </main>
+
+      {/* Add Task Dialog */}
+      <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="task-title">Task Title</Label>
+              <Input 
+                id="task-title" 
+                value={taskTitle} 
+                onChange={(e) => setTaskTitle(e.target.value)} 
+                placeholder="Enter task title" 
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="task-category">Category</Label>
+              <Select value={taskCategory} onValueChange={(value) => setTaskCategory(value as TaskCategory)}>
+                <SelectTrigger id="task-category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="learning">Learning</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="task-description">Description (Optional)</Label>
+              <Input 
+                id="task-description" 
+                value={taskDescription} 
+                onChange={(e) => setTaskDescription(e.target.value)} 
+                placeholder="Enter task description" 
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="task-due-date">Due Date (Optional)</Label>
+              <Input 
+                id="task-due-date" 
+                value={taskDueDate} 
+                onChange={(e) => setTaskDueDate(e.target.value)} 
+                placeholder="e.g., Tomorrow, Friday, etc." 
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddTaskOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddTask}>Add Task</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -54,7 +54,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
       case 'in-progress':
         return <Circle size={16} className="text-amber-500 fill-amber-500/30" />;
       case 'upcoming':
-        return <Circle size={16} className="text-gray-300" />;
+        return <Circle size={16} className="text-gray-300 dark:text-gray-600" />;
     }
   };
 
@@ -62,19 +62,19 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
     switch (priority) {
       case 'high':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 font-medium">
             High
           </span>
         );
       case 'medium':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 font-medium">
             Medium
           </span>
         );
       case 'low':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 font-medium">
             Low
           </span>
         );
@@ -82,18 +82,18 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   };
 
   return (
-    <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in", className)}>
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-800">Today's Tasks</h2>
+    <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/40 dark:border-gray-700", className)}>
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Today's Tasks</h2>
         <button className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
           Add Task
         </button>
       </div>
       
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-gray-100 dark:divide-gray-700">
         {tasks.map((task, index) => (
           <div key={task.id} className={cn(
-            "px-5 py-3.5 flex items-center hover:bg-gray-50/50 transition-colors",
+            "px-5 py-3.5 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors",
             task.status === 'completed' && "opacity-70"
           )}>
             <div className="mr-3 flex-shrink-0">
@@ -102,16 +102,16 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
             
             <div className="flex-1 min-w-0">
               <p className={cn(
-                "text-sm font-medium text-gray-800 truncate",
-                task.status === 'completed' && "line-through text-gray-500"
+                "text-sm font-medium text-gray-800 dark:text-gray-200 truncate",
+                task.status === 'completed' && "line-through text-gray-500 dark:text-gray-500"
               )}>
                 {task.title}
               </p>
               
               {task.time && (
                 <div className="flex items-center mt-1">
-                  <Clock size={12} className="text-gray-400 mr-1" />
-                  <span className="text-xs text-gray-500">{task.time}</span>
+                  <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{task.time}</span>
                 </div>
               )}
             </div>
@@ -123,7 +123,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
         ))}
       </div>
       
-      <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50">
+      <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60">
         <button className="w-full text-sm text-primary font-medium hover:text-primary/80 transition-colors">
           View all tasks
         </button>
