@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2 } from 'lucide-react';

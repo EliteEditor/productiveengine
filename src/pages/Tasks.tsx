@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { ListPlus, Filter, Tag, Calendar as CalendarIcon, CheckCircle, Plus, Trash2 } from 'lucide-react';
@@ -31,7 +30,7 @@ const Tasks = () => {
   const [taskTitle, setTaskTitle] = useState('');
   const [taskCategory, setTaskCategory] = useState<TaskCategory>(categories[0]?.id || 'work');
   const [taskDescription, setTaskDescription] = useState('');
-  const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low' | ''>('');
+  const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
   
   // Date picker for due date
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
@@ -75,7 +74,7 @@ const Tasks = () => {
       category: taskCategory,
       description: taskDescription || undefined,
       dueDate: dueDateString,
-      priority: taskPriority || undefined
+      priority: taskPriority !== 'none' ? taskPriority : undefined
     });
     
     // Reset form and close dialog
@@ -84,7 +83,7 @@ const Tasks = () => {
     setTaskDescription('');
     setDueDate(undefined);
     setCustomDueDate('');
-    setTaskPriority('');
+    setTaskPriority('none');
     setIsAddTaskOpen(false);
   };
 
@@ -316,12 +315,12 @@ const Tasks = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="task-priority" className="dark:text-gray-200">Priority (Optional)</Label>
-              <Select value={taskPriority} onValueChange={(value) => setTaskPriority(value as 'high' | 'medium' | 'low' | '')}>
+              <Select value={taskPriority} onValueChange={(value) => setTaskPriority(value as 'high' | 'medium' | 'low' | 'none')}>
                 <SelectTrigger id="task-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
