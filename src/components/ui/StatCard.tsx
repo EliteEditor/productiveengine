@@ -27,25 +27,27 @@ const StatCard: React.FC<StatCardProps> = ({
     )}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-2xl font-semibold mt-1 text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-300">{title}</p>
+          <p className="text-2xl font-semibold mt-1 text-gray-900 dark:text-white">{value}</p>
           
           {trend && (
             <div className="flex items-center mt-1">
               <div className={cn(
                 "text-xs font-medium rounded-full px-1.5 py-0.5 flex items-center",
-                trend.isPositive ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50"
+                trend.isPositive 
+                  ? "text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/30" 
+                  : "text-rose-700 bg-rose-50 dark:text-rose-300 dark:bg-rose-900/30"
               )}>
                 <span>{trend.isPositive ? '↑' : '↓'}</span>
                 <span className="ml-0.5">{Math.abs(trend.value)}%</span>
               </div>
-              <span className="text-xs text-gray-500 ml-1.5">vs last week</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1.5">vs last week</span>
             </div>
           )}
         </div>
         
         {icon && (
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+          <div className="p-2 rounded-lg bg-primary/10 text-primary dark:bg-primary/20">
             {icon}
           </div>
         )}

@@ -45,7 +45,7 @@ const ProductivityMetrics = () => {
       <StatCard
         title="Tasks Completed"
         value={tasksRatio}
-        icon={<CalendarCheck size={18} />}
+        icon={<CalendarCheck size={18} className="dark:text-blue-300" />}
         trend={taskTrend}
         className="animate-delay-200"
       />
@@ -53,7 +53,7 @@ const ProductivityMetrics = () => {
       <StatCard
         title="Goal Progress"
         value={`${goalProgress}%`}
-        icon={<Target size={18} />}
+        icon={<Target size={18} className="dark:text-blue-300" />}
         trend={goalTrend}
         className="animate-delay-300"
       />
@@ -61,7 +61,7 @@ const ProductivityMetrics = () => {
       <StatCard
         title="Focus Score"
         value={focusScore}
-        icon={<BrainCircuit size={18} />}
+        icon={<BrainCircuit size={18} className="dark:text-blue-300" />}
         trend={focusTrend}
         className="animate-delay-400"
       />
