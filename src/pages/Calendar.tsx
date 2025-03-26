@@ -94,8 +94,8 @@ const Calendar = () => {
                   onSelect={setDate}
                   className="rounded-md border shadow dark:border-gray-700"
                   classNames={{
-                    day_today: "bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white font-bold",
-                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground dark:bg-blue-600 dark:text-white"
+                    day_today: "bg-primary/20 text-primary font-bold dark:bg-blue-600/30 dark:text-blue-100 dark:font-bold",
+                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700"
                   }}
                 />
               </div>
