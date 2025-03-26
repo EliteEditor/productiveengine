@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { Calendar as CalendarIcon, CheckCircle, Clock, Tag } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckCircle, Clock, Tag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { format } from 'date-fns';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 const Calendar = () => {
-  const { tasks, categories } = useTaskContext();
+  const { tasks, categories, toggleTaskStatus, deleteTask } = useTaskContext();
   const [date, setDate] = useState<Date | undefined>(new Date());
   
   // Format date display
@@ -56,6 +58,16 @@ const Calendar = () => {
   
   const tasksForSelectedDate = getTasksForDate(date);
   
+  const handleToggleTask = (taskId: string) => {
+    toggleTaskStatus(taskId);
+    toast.success("Task status updated");
+  };
+  
+  const handleDeleteTask = (taskId: string) => {
+    deleteTask(taskId);
+    toast.success("Task deleted successfully");
+  };
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Header title="Calendar" />
@@ -66,13 +78,13 @@ const Calendar = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-1">
+          <Card className="md:col-span-1 dark:bg-gray-800/60 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 dark:text-gray-100">
                 <CalendarIcon size={18} className="text-primary" />
                 Date Picker
               </CardTitle>
-              <CardDescription>Select a date to view tasks</CardDescription>
+              <CardDescription className="dark:text-gray-300">Select a date to view tasks</CardDescription>
             </CardHeader>
             <CardContent className="pb-6">
               <div className="flex justify-center">
@@ -80,10 +92,10 @@ const Calendar = () => {
                   mode="single"
                   selected={date}
                   onSelect={setDate}
-                  className="rounded-md border shadow"
+                  className="rounded-md border shadow dark:border-gray-700"
                   classNames={{
-                    day_today: "bg-primary text-primary-foreground font-bold",
-                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                    day_today: "bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white font-bold",
+                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground dark:bg-blue-600 dark:text-white"
                   }}
                 />
               </div>
@@ -94,13 +106,13 @@ const Calendar = () => {
             </CardContent>
           </Card>
           
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 dark:bg-gray-800/60 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 dark:text-gray-100">
                 <Clock size={18} className="text-primary" />
                 Tasks for {formattedDate}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="dark:text-gray-300">
                 {tasksForSelectedDate.length > 0 
                   ? `You have ${tasksForSelectedDate.length} task(s) scheduled`
                   : 'No tasks scheduled for this date'}
@@ -130,15 +142,16 @@ const Calendar = () => {
                         key={task.id} 
                         className={`p-4 rounded-lg border ${
                           task.status === 'completed' 
-                            ? 'bg-gray-50 dark:bg-gray-800/60 border-gray-100 dark:border-gray-700' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-800/30 border-gray-100 dark:border-gray-700'
+                            ? 'bg-gray-50 dark:bg-gray-800/70 border-gray-100 dark:border-gray-700' 
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800/40 border-gray-100 dark:border-gray-700'
                         }`}
                       >
                         <div className="flex items-start">
                           <div className="flex-shrink-0 mr-3 mt-1">
-                            <CheckCircle 
-                              size={18} 
-                              className={task.status === 'completed' ? 'text-green-500 fill-green-500' : 'text-gray-300 dark:text-gray-600'} 
+                            <Checkbox 
+                              checked={task.status === 'completed'}
+                              onCheckedChange={() => handleToggleTask(task.id)}
+                              className="mt-0.5"
                             />
                           </div>
                           <div className="flex-1">
@@ -163,7 +176,7 @@ const Calendar = () => {
                               <span 
                                 className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full"
                                 style={{
-                                  backgroundColor: `${categoryColor}20`, // 20% opacity
+                                  backgroundColor: `${categoryColor}30`, // 30% opacity
                                   color: categoryColor,
                                 }}
                               >
@@ -174,16 +187,26 @@ const Calendar = () => {
                               {task.priority && (
                                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                                   task.priority === 'high'
-                                    ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300'
+                                    ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200'
                                     : task.priority === 'medium'
-                                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
-                                      : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                                      ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200'
+                                      : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200'
                                 } font-medium`}>
                                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                                 </span>
                               )}
                             </div>
                           </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
+                            onClick={() => handleDeleteTask(task.id)}
+                            title="Delete task"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         </div>
                       </div>
                     );

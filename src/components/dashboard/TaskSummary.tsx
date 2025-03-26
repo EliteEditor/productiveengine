@@ -32,7 +32,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
       case 'completed':
         return <CheckCircle2 size={16} className="text-emerald-500" />;
       case 'pending':
-        return <Circle size={16} className="text-gray-300 dark:text-gray-600" />;
+        return <Circle size={16} className="text-gray-300 dark:text-gray-500" />;
     }
   };
 
@@ -40,19 +40,19 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
     switch (priority) {
       case 'high':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200 font-medium">
             High
           </span>
         );
       case 'medium':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200 font-medium">
             Medium
           </span>
         );
       case 'low':
         return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 font-medium">
+          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200 font-medium">
             Low
           </span>
         );
@@ -62,7 +62,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   };
 
   return (
-    <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/40 dark:border-gray-700", className)}>
+    <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700", className)}>
       <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Upcoming Tasks</h2>
         <a href="/tasks" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
@@ -78,7 +78,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
         ) : (
           displayTasks.map((task, index) => (
             <div key={task.id} className={cn(
-              "px-5 py-3.5 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors",
+              "px-5 py-3.5 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors",
               task.status === 'completed' && "opacity-70"
             )}>
               <div className="mr-3 flex-shrink-0">
@@ -90,30 +90,28 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
                 </div>
               </div>
               
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 mr-2">
                 <p className={cn(
                   "text-sm font-medium text-gray-800 dark:text-gray-200 truncate",
-                  task.status === 'completed' && "line-through text-gray-500 dark:text-gray-500"
+                  task.status === 'completed' && "line-through text-gray-500 dark:text-gray-400"
                 )}>
                   {task.title}
                 </p>
                 
                 {task.dueDate && (
                   <div className="flex items-center mt-1">
-                    <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1" />
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{task.dueDate}</span>
+                    <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1 flex-shrink-0" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{task.dueDate}</span>
                   </div>
                 )}
               </div>
               
-              <div className="ml-2 flex items-center">
-                <div className="mr-2">
-                  {getPriorityBadge(task.priority)}
-                </div>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                {getPriorityBadge(task.priority)}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 ml-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
+                  className="h-6 w-6 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
                   onClick={() => deleteTask(task.id)}
                   title="Delete task"
                 >
@@ -125,7 +123,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
         )}
       </div>
       
-      <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60">
+      <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/70">
         <a href="/tasks" className="w-full text-sm text-primary font-medium hover:text-primary/80 transition-colors block text-center">
           View all tasks
         </a>

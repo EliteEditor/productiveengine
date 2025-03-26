@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { Target, Filter, Plus, Calendar, Tag, Trash2 } from 'lucide-react';
+import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,10 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGoalContext } from '@/contexts/GoalContext';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const Goals = () => {
   const { goals, addGoal, deleteGoal, toggleMilestone } = useGoalContext();
-  const { categories } = useTaskContext();
+  const { categories, addCategory } = useTaskContext();
   
   // State for filtering
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -29,8 +33,14 @@ const Goals = () => {
   const [isAddGoalOpen, setIsAddGoalOpen] = useState(false);
   const [goalTitle, setGoalTitle] = useState('');
   const [goalDeadline, setGoalDeadline] = useState('');
+  const [deadlineDate, setDeadlineDate] = useState<Date | undefined>(undefined);
   const [goalCategory, setGoalCategory] = useState(categories[0]?.id || 'work');
   const [milestones, setMilestones] = useState<{ title: string }[]>([{ title: '' }]);
+  
+  // State for add category dialog
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [categoryName, setCategoryName] = useState('');
+  const [categoryColor, setCategoryColor] = useState('#3b82f6');
 
   // Add empty milestone field
   const addMilestoneField = () => {
@@ -61,7 +71,13 @@ const Goals = () => {
       return;
     }
 
-    if (goalDeadline.trim() === '') {
+    // Use date from date picker if available, otherwise use text input
+    let deadline = goalDeadline;
+    if (deadlineDate) {
+      deadline = format(deadlineDate, 'MMMM d, yyyy');
+    }
+
+    if (deadline.trim() === '') {
       toast.error('Please set a deadline');
       return;
     }
@@ -82,7 +98,7 @@ const Goals = () => {
 
     addGoal({
       title: goalTitle,
-      deadline: goalDeadline,
+      deadline: deadline,
       progress: 0,
       milestones: validMilestones,
       category: goalCategory
@@ -91,9 +107,28 @@ const Goals = () => {
     // Reset form and close dialog
     setGoalTitle('');
     setGoalDeadline('');
+    setDeadlineDate(undefined);
     setGoalCategory(categories[0]?.id || 'work');
     setMilestones([{ title: '' }]);
     setIsAddGoalOpen(false);
+  };
+
+  // Handle adding new category
+  const handleAddCategory = () => {
+    if (categoryName.trim() === '') {
+      toast.error('Category name cannot be empty');
+      return;
+    }
+
+    addCategory({
+      name: categoryName,
+      color: categoryColor,
+    });
+    
+    // Reset form and close dialog
+    setCategoryName('');
+    setCategoryColor('#3b82f6');
+    setIsAddCategoryOpen(false);
   };
 
   return (
@@ -120,7 +155,7 @@ const Goals = () => {
           </div>
         </div>
         
-        <div className="glass rounded-xl p-5 card-shadow animate-scale-in dark:bg-gray-800/40 dark:border-gray-700">
+        <div className="glass rounded-xl p-5 card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700">
           <div className="mb-4 flex flex-wrap gap-2 items-center">
             <span 
               className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer ${
@@ -148,6 +183,16 @@ const Goals = () => {
                 {category.name}
               </span>
             ))}
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs rounded-full"
+              onClick={() => setIsAddCategoryOpen(true)}
+            >
+              <Plus size={12} className="mr-1" />
+              Add Category
+            </Button>
           </div>
 
           {filteredGoals.length === 0 ? (
@@ -181,7 +226,7 @@ const Goals = () => {
                           <span 
                             className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full"
                             style={{
-                              backgroundColor: `${categoryColor}20`, // 20% opacity
+                              backgroundColor: `${categoryColor}30`, // 30% opacity
                               color: categoryColor,
                             }}
                           >
@@ -190,7 +235,7 @@ const Goals = () => {
                           </span>
                         )}
                         <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                          <Calendar size={14} className="mr-1" />
+                          <CalendarIcon size={14} className="mr-1" />
                           {goal.deadline}
                         </span>
                         <Button
@@ -248,38 +293,71 @@ const Goals = () => {
 
       {/* Add Goal Dialog */}
       <Dialog open={isAddGoalOpen} onOpenChange={setIsAddGoalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] dark:bg-gray-800 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle>Add New Goal</DialogTitle>
-            <DialogDescription>Create a new goal with milestones to track your progress</DialogDescription>
+            <DialogTitle className="dark:text-gray-100">Add New Goal</DialogTitle>
+            <DialogDescription className="dark:text-gray-300">Create a new goal with milestones to track your progress</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="goal-title">Goal Title</Label>
+              <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
               <Input 
                 id="goal-title" 
                 value={goalTitle} 
                 onChange={(e) => setGoalTitle(e.target.value)} 
                 placeholder="Enter goal title" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
               />
             </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="goal-deadline">Deadline</Label>
-                <Input 
-                  id="goal-deadline" 
-                  value={goalDeadline} 
-                  onChange={(e) => setGoalDeadline(e.target.value)} 
-                  placeholder="e.g., June 30, 2023" 
-                />
+                <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
+                <div className="flex flex-col gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+                          !deadlineDate && "text-muted-foreground dark:text-gray-400"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={deadlineDate}
+                        onSelect={setDeadlineDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Or manually enter:</span>
+                  </div>
+                  
+                  <Input 
+                    id="goal-deadline" 
+                    value={goalDeadline} 
+                    onChange={(e) => setGoalDeadline(e.target.value)} 
+                    placeholder="e.g., June 30, 2023" 
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  />
+                </div>
               </div>
+              
               <div className="grid gap-2">
-                <Label htmlFor="goal-category">Category</Label>
+                <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
                 <Select value={goalCategory} onValueChange={setGoalCategory}>
-                  <SelectTrigger id="goal-category">
+                  <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
                     {categories.map(category => (
                       <SelectItem key={category.id} value={category.id}>
                         <div className="flex items-center">
@@ -293,18 +371,32 @@ const Goals = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setIsAddGoalOpen(false);
+                    setTimeout(() => setIsAddCategoryOpen(true), 100);
+                  }}
+                  className="mt-1 text-xs dark:border-gray-600 dark:text-gray-200"
+                >
+                  <Plus size={12} className="mr-1" />
+                  Add New Category
+                </Button>
               </div>
             </div>
             
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label>Milestones</Label>
+                <Label className="dark:text-gray-200">Milestones</Label>
                 <Button 
                   type="button" 
                   variant="outline" 
                   size="sm" 
                   onClick={addMilestoneField}
-                  className="text-xs h-7"
+                  className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
                 >
                   <Plus size={12} className="mr-1" />
                   Add Milestone
@@ -318,6 +410,7 @@ const Goals = () => {
                       value={milestone.title}
                       onChange={(e) => updateMilestoneTitle(index, e.target.value)}
                       placeholder={`Milestone ${index + 1}`}
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                     />
                     <Button 
                       type="button" 
@@ -325,7 +418,7 @@ const Goals = () => {
                       size="icon"
                       onClick={() => removeMilestoneField(index)}
                       disabled={milestones.length === 1}
-                      className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                      className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     >
                       <Target size={14} className="rotate-45" />
                     </Button>
@@ -335,8 +428,71 @@ const Goals = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddGoalOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsAddGoalOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
             <Button onClick={handleAddGoal}>Add Goal</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Category Dialog */}
+      <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
+        <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 dark:border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="dark:text-gray-100">Add New Category</DialogTitle>
+            <DialogDescription className="dark:text-gray-300">Create a custom category with a color</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="category-name" className="dark:text-gray-200">Category Name</Label>
+              <Input 
+                id="category-name" 
+                value={categoryName} 
+                onChange={(e) => setCategoryName(e.target.value)} 
+                placeholder="Enter category name" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="category-color" className="dark:text-gray-200">Category Color</Label>
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-8 h-8 rounded-full border"
+                  style={{ backgroundColor: categoryColor }}
+                ></div>
+                <Input 
+                  id="category-color" 
+                  type="color"
+                  value={categoryColor} 
+                  onChange={(e) => setCategoryColor(e.target.value)} 
+                  className="w-24 h-10 p-1"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-6 gap-2 mt-2">
+              {[
+                '#ef4444', // red
+                '#f97316', // orange
+                '#f59e0b', // amber
+                '#10b981', // emerald
+                '#3b82f6', // blue
+                '#8b5cf6', // violet
+                '#d946ef', // pink
+                '#64748b', // slate
+              ].map(color => (
+                <button
+                  key={color}
+                  className={`w-8 h-8 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 ${categoryColor === color ? 'ring-2 ring-offset-2 ring-gray-500 dark:ring-gray-300' : ''}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setCategoryColor(color)}
+                  type="button"
+                  aria-label={`Color ${color}`}
+                />
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddCategoryOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
+            <Button onClick={handleAddCategory}>Add Category</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
