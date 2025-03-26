@@ -27,13 +27,19 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   // Combine tasks, with priority given to today's tasks
   const displayTasks = [...todayTasks.slice(0, 2), ...upcomingTasks].slice(0, 4);
 
-  const getStatusIcon = (status: 'completed' | 'pending') => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle2 size={16} className="text-emerald-500" />;
-      case 'pending':
-        return <Circle size={16} className="text-gray-300 dark:text-gray-500" />;
-    }
+  const getStatusIcon = (status: 'completed' | 'pending', taskId: string) => {
+    return (
+      <div 
+        className="cursor-pointer" 
+        onClick={() => toggleTaskStatus(taskId)}
+      >
+        {status === 'completed' ? (
+          <CheckCircle2 size={16} className="text-emerald-500" />
+        ) : (
+          <Circle size={16} className="text-gray-300 dark:text-gray-500" />
+        )}
+      </div>
+    );
   };
 
   const getPriorityBadge = (priority?: 'high' | 'medium' | 'low') => {
@@ -82,12 +88,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
               task.status === 'completed' && "opacity-70"
             )}>
               <div className="mr-3 flex-shrink-0">
-                <div 
-                  onClick={() => toggleTaskStatus(task.id)}
-                  className="cursor-pointer"
-                >
-                  {getStatusIcon(task.status)}
-                </div>
+                {getStatusIcon(task.status, task.id)}
               </div>
               
               <div className="flex-1 min-w-0 mr-2">

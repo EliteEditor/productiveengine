@@ -65,11 +65,6 @@ const Index = () => {
     return dueDate?.includes('today');
   });
 
-  // Handle task toggling
-  const handleToggleTask = (taskId: string) => {
-    toggleTaskStatus(taskId);
-  };
-
   // Function to get priority badge
   const getPriorityBadge = (priority?: 'high' | 'medium' | 'low') => {
     switch (priority) {
@@ -148,7 +143,7 @@ const Index = () => {
                             <CheckCircle 
                               size={18} 
                               className={`${task.status === 'completed' ? 'text-green-500 fill-green-500' : 'text-gray-300 dark:text-gray-600'} cursor-pointer`}
-                              onClick={() => handleToggleTask(task.id)} 
+                              onClick={() => toggleTaskStatus(task.id)} 
                             />
                           </div>
                           <div className="flex-1 min-w-0">
