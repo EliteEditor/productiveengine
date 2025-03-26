@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import ProductivityMetrics from '@/components/dashboard/ProductivityMetrics';
 import TaskSummary from '@/components/dashboard/TaskSummary';
-import { Plus, CheckCircle, Target } from 'lucide-react';
+import { Plus, CheckCircle, Target, Calendar as CalendarIcon } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
