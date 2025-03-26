@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2 } from 'lucide-react';
+import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -34,6 +35,7 @@ const Goals = () => {
   const [goalDeadline, setGoalDeadline] = useState('');
   const [deadlineDate, setDeadlineDate] = useState<Date | undefined>(undefined);
   const [goalCategory, setGoalCategory] = useState(categories[0]?.id || 'work');
+  const [goalPriority, setGoalPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
   const [milestones, setMilestones] = useState<{ title: string }[]>([{ title: '' }]);
   
   // State for add category dialog
@@ -61,6 +63,35 @@ const Goals = () => {
     const updatedMilestones = [...milestones];
     updatedMilestones.splice(index, 1);
     setMilestones(updatedMilestones);
+  };
+
+  // Get priority badge for display
+  const getPriorityBadge = (priority?: 'high' | 'medium' | 'low') => {
+    switch (priority) {
+      case 'high':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200 font-medium flex items-center">
+            <Flag size={10} className="mr-1" />
+            High
+          </span>
+        );
+      case 'medium':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200 font-medium flex items-center">
+            <Flag size={10} className="mr-1" />
+            Medium
+          </span>
+        );
+      case 'low':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200 font-medium flex items-center">
+            <Flag size={10} className="mr-1" />
+            Low
+          </span>
+        );
+      default:
+        return null;
+    }
   };
 
   // Handle adding new goal
@@ -100,7 +131,8 @@ const Goals = () => {
       deadline: deadline,
       progress: 0,
       milestones: validMilestones,
-      category: goalCategory
+      category: goalCategory,
+      priority: goalPriority !== 'none' ? goalPriority : undefined
     });
 
     // Reset form and close dialog
@@ -108,6 +140,7 @@ const Goals = () => {
     setGoalDeadline('');
     setDeadlineDate(undefined);
     setGoalCategory(categories[0]?.id || 'work');
+    setGoalPriority('none');
     setMilestones([{ title: '' }]);
     setIsAddGoalOpen(false);
   };
@@ -221,6 +254,7 @@ const Goals = () => {
                         <h3 className="font-medium text-gray-800 dark:text-gray-200">{goal.title}</h3>
                       </div>
                       <div className="flex items-center space-x-3">
+                        {goal.priority && getPriorityBadge(goal.priority)}
                         {goal.category && (
                           <span 
                             className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full"
@@ -385,6 +419,21 @@ const Goals = () => {
                   Add New Category
                 </Button>
               </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
+              <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
+                <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="grid gap-2">

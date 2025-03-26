@@ -1,19 +1,11 @@
 
 import React from 'react';
-import { Clock, Target, CalendarCheck, BrainCircuit } from 'lucide-react';
+import { CalendarCheck, Target, BrainCircuit } from 'lucide-react';
 import StatCard from '../ui/StatCard';
 
 const ProductivityMetrics = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <StatCard
-        title="Focus Time"
-        value="4h 25m"
-        icon={<Clock size={18} />}
-        trend={{ value: 12, isPositive: true }}
-        className="animate-delay-100"
-      />
-      
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <StatCard
         title="Tasks Completed"
         value="8/12"

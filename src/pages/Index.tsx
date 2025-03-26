@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import ProductivityMetrics from '@/components/dashboard/ProductivityMetrics';
-import CoachingInsights from '@/components/dashboard/CoachingInsights';
 import TaskSummary from '@/components/dashboard/TaskSummary';
 import { Plus, CheckCircle, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -12,10 +12,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { useGoalContext } from '@/contexts/GoalContext';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const Index = () => {
   const { goals } = useGoalContext();
-  const { tasks, addTask, categories } = useTaskContext();
+  const { tasks, addTask, toggleTaskStatus, categories } = useTaskContext();
   
   // State for add task dialog
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -23,10 +27,18 @@ const Index = () => {
   const [taskCategory, setTaskCategory] = useState(categories[0]?.id || 'work');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskDueDate, setTaskDueDate] = useState('Today');
+  const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 
   const handleAddTask = () => {
     if (taskTitle.trim() === '') {
       return;
+    }
+
+    // Format the due date
+    let dueDateString = taskDueDate;
+    if (dueDate) {
+      dueDateString = format(dueDate, 'PPP');
     }
 
     addTask({
@@ -34,7 +46,8 @@ const Index = () => {
       status: 'pending',
       category: taskCategory,
       description: taskDescription || undefined,
-      dueDate: taskDueDate || undefined
+      dueDate: dueDateString || 'Today',
+      priority: taskPriority !== 'none' ? taskPriority : undefined
     });
     
     // Reset form and close dialog
@@ -42,6 +55,8 @@ const Index = () => {
     setTaskCategory(categories[0]?.id || 'work');
     setTaskDescription('');
     setTaskDueDate('Today');
+    setDueDate(undefined);
+    setTaskPriority('none');
     setIsAddTaskOpen(false);
   };
 
@@ -50,6 +65,37 @@ const Index = () => {
     const dueDate = task.dueDate?.toLowerCase();
     return dueDate?.includes('today');
   });
+
+  // Handle task toggling
+  const handleToggleTask = (taskId: string) => {
+    toggleTaskStatus(taskId);
+  };
+
+  // Function to get priority badge
+  const getPriorityBadge = (priority?: 'high' | 'medium' | 'low') => {
+    switch (priority) {
+      case 'high':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200 font-medium">
+            High
+          </span>
+        );
+      case 'medium':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200 font-medium">
+            Medium
+          </span>
+        );
+      case 'low':
+        return (
+          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200 font-medium">
+            Low
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -102,7 +148,8 @@ const Index = () => {
                           <div className="flex-shrink-0 mr-3">
                             <CheckCircle 
                               size={18} 
-                              className={task.status === 'completed' ? 'text-green-500 fill-green-500' : 'text-gray-300 dark:text-gray-600'} 
+                              className={`${task.status === 'completed' ? 'text-green-500 fill-green-500' : 'text-gray-300 dark:text-gray-600'} cursor-pointer`}
+                              onClick={() => handleToggleTask(task.id)} 
                             />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -114,28 +161,22 @@ const Index = () => {
                               {task.title}
                             </p>
                           </div>
-                          <span 
-                            className="px-2 py-0.5 text-xs rounded-full font-medium"
-                            style={{
-                              backgroundColor: `${categoryColor}20`, // 20% opacity
-                              color: categoryColor,
-                            }}
-                          >
-                            {task.category.charAt(0).toUpperCase() + task.category.slice(1)}
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            {getPriorityBadge(task.priority)}
+                            <span 
+                              className="px-2 py-0.5 text-xs rounded-full font-medium"
+                              style={{
+                                backgroundColor: `${categoryColor}20`, // 20% opacity
+                                color: categoryColor,
+                              }}
+                            >
+                              {task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                            </span>
+                          </div>
                         </div>
                       );
                     })
                   )}
-                </div>
-              </div>
-              
-              <CoachingInsights className="mb-6" />
-              
-              <div className="glass rounded-xl p-5 card-shadow animate-scale-in animate-delay-500 dark:bg-gray-800/40 dark:border-gray-700">
-                <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-4">Focus Graph</h2>
-                <div className="h-[240px] flex items-center justify-center bg-gray-50 dark:bg-gray-800/60 rounded-lg border border-gray-100 dark:border-gray-700">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">Focus productivity trends visualization</p>
                 </div>
               </div>
             </div>
@@ -161,6 +202,17 @@ const Index = () => {
                           <span className="text-sm text-primary font-medium">{goal.progress}%</span>
                         </div>
                         <Progress value={goal.progress} className="h-2" />
+                        {goal.priority && (
+                          <div className="mt-2">
+                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                              goal.priority === 'high' ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200' :
+                              goal.priority === 'medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200' :
+                              'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200'
+                            }`}>
+                              {goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ))
                   )}
@@ -224,12 +276,48 @@ const Index = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="task-due-date">Due Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               <Input
                 id="task-due-date"
                 value={taskDueDate}
                 onChange={(e) => setTaskDueDate(e.target.value)}
                 placeholder="e.g., Today, Tomorrow, etc."
               />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="task-priority">Priority (Optional)</Label>
+              <Select value={taskPriority} onValueChange={(value) => setTaskPriority(value as 'high' | 'medium' | 'low' | 'none')}>
+                <SelectTrigger id="task-priority">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

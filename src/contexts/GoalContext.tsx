@@ -17,6 +17,7 @@ export interface Goal {
   progress: number;
   milestones: Milestone[];
   category?: string;
+  priority?: 'high' | 'medium' | 'low';
 }
 
 interface GoalContextType {
@@ -56,7 +57,8 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
         { id: 'm3', title: 'Draft proposal', completed: true },
         { id: 'm4', title: 'Final review', completed: false }
       ],
-      category: 'work'
+      category: 'work',
+      priority: 'high'
     },
     {
       id: '2',
@@ -68,7 +70,8 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
         { id: 'm2', title: 'Build simple application', completed: false },
         { id: 'm3', title: 'Complete online course', completed: false }
       ],
-      category: 'learning'
+      category: 'learning',
+      priority: 'medium'
     },
     {
       id: '3',
@@ -81,7 +84,8 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
         { id: 'm3', title: 'Digital detox weekends', completed: false },
         { id: 'm4', title: 'Weekly review process', completed: false }
       ],
-      category: 'personal'
+      category: 'personal',
+      priority: 'low'
     }
   ]);
 
