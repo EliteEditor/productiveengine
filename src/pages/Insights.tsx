@@ -66,7 +66,7 @@ const Insights = () => {
     <div className="flex flex-col min-h-screen">
       <Header title="Insights" />
       
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full animate-fade-in">
+      <main className="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full animate-fade-in">
         <div className="mb-6 flex flex-wrap items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-100">Productivity Insights</h1>
@@ -137,7 +137,7 @@ const Insights = () => {
           </Card>
         </div>
         
-        {/* Chart Section */}
+        {/* Chart Section - Mobile optimized */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Daily Completion Rate Chart */}
           <Card>
@@ -152,18 +152,27 @@ const Insights = () => {
               <ChartContainer config={chartConfig}>
                 <LineChart
                   data={completionRateData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis unit="%" />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => value.substring(0, 3)} // Abbreviate day names on mobile
+                  />
+                  <YAxis 
+                    unit="%" 
+                    tick={{ fontSize: 10 }}
+                    width={30}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Line 
                     type="monotone" 
                     dataKey="rate" 
                     name="Completion Rate" 
                     stroke={chartConfig.success.color}
-                    activeDot={{ r: 8 }} 
+                    activeDot={{ r: 6 }} 
+                    strokeWidth={2}
                   />
                 </LineChart>
               </ChartContainer>
@@ -190,6 +199,7 @@ const Insights = () => {
                     fill="#8884d8"
                     dataKey="value"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     {tasksByCategoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -223,6 +233,7 @@ const Insights = () => {
                     fill="#8884d8"
                     dataKey="value"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     <Cell fill="#10b981" /> {/* Completed */}
                     <Cell fill="#ef4444" /> {/* Pending */}
@@ -246,12 +257,21 @@ const Insights = () => {
               <ChartContainer config={chartConfig}>
                 <BarChart
                   data={goalProgressData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
                   layout="vertical"
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" domain={[0, 100]} />
-                  <YAxis dataKey="name" type="category" width={100} />
+                  <XAxis 
+                    type="number" 
+                    domain={[0, 100]} 
+                    tick={{ fontSize: 10 }}
+                  />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={80}
+                    tick={{ fontSize: 10 }}
+                  />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="progress" name="Progress" fill={chartConfig.goal.color} />
                 </BarChart>
