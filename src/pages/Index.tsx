@@ -59,161 +59,69 @@ const Index = () => {
     setIsAddTaskOpen(false);
   };
 
-  // Get today's tasks
-  const todayTasks = tasks.filter(task => {
-    const dueDate = task.dueDate?.toLowerCase();
-    return dueDate?.includes('today');
-  });
-
-  // Function to get priority badge
-  const getPriorityBadge = (priority?: 'high' | 'medium' | 'low') => {
-    switch (priority) {
-      case 'high':
-        return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200 font-medium">
-            High
-          </span>
-        );
-      case 'medium':
-        return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200 font-medium">
-            Medium
-          </span>
-        );
-      case 'low':
-        return (
-          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200 font-medium">
-            Low
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
-        <div className="mb-8 animate-fade-in">
-          <div className="mb-6">
-            <h2 className="text-sm text-gray-500 dark:text-gray-400 font-medium">Good afternoon, Alex</h2>
-            <div className="flex flex-wrap items-center justify-between mt-2">
-              <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-100">Your Productivity Dashboard</h1>
-              
-              <div className="flex gap-3 mt-4 sm:mt-0">
-                <Button variant="outline" className="flex items-center" onClick={() => setIsAddTaskOpen(true)}>
-                  <Plus size={16} className="mr-2" />
-                  <span className="font-medium">Add Task</span>
-                </Button>
-              </div>
-            </div>
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid gap-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight">Your Productivity Dashboard</h1>
+            <Button onClick={() => setIsAddTaskOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Add Task
+            </Button>
           </div>
-          
+
           <ProductivityMetrics />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <div className="glass rounded-xl p-5 card-shadow animate-scale-in mb-6 dark:bg-gray-800/40 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Today's Tasks</h2>
-                  <a href="/tasks" className="text-sm text-primary font-medium hover:underline">View All</a>
-                </div>
-                
-                <div className="space-y-3">
-                  {todayTasks.length === 0 ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">No tasks scheduled for today</p>
-                  ) : (
-                    todayTasks.map(task => {
-                      // Find the category color
-                      const category = categories.find(c => c.id === task.category || c.name.toLowerCase() === task.category.toLowerCase());
-                      const categoryColor = category?.color || '#9ca3af'; // Default gray if not found
-                      
-                      return (
-                        <div 
-                          key={task.id} 
-                          className={`flex items-center p-3 rounded-lg border ${
-                            task.status === 'completed' 
-                              ? 'bg-gray-50 dark:bg-gray-800/60 border-gray-100 dark:border-gray-700' 
-                              : 'hover:bg-gray-50 dark:hover:bg-gray-800/30 border-gray-100 dark:border-gray-700'
-                          } transition-colors`}
-                        >
-                          <div className="flex-shrink-0 mr-3">
-                            <CheckCircle 
-                              size={18} 
-                              className={`${task.status === 'completed' ? 'text-green-500 fill-green-500' : 'text-gray-300 dark:text-gray-600'} cursor-pointer`}
-                              onClick={() => toggleTaskStatus(task.id)} 
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`font-medium ${
-                              task.status === 'completed' 
-                                ? 'text-gray-500 line-through dark:text-gray-400' 
-                                : 'text-gray-800 dark:text-gray-200'
-                            }`}>
-                              {task.title}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {getPriorityBadge(task.priority)}
-                            <span 
-                              className="px-2 py-0.5 text-xs rounded-full font-medium"
-                              style={{
-                                backgroundColor: `${categoryColor}20`, // 20% opacity
-                                color: categoryColor,
-                              }}
-                            >
-                              {task.category.charAt(0).toUpperCase() + task.category.slice(1)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Today's Tasks with Mini Calendar */}
+            <TaskSummary />
+
+            {/* Goal Progress */}
+            <div className="glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700">
+              <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Goal Progress</h2>
+                <a href="/goals" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
+                  View All
+                </a>
               </div>
-            </div>
-            
-            <div className="lg:col-span-1">
-              <div className="glass rounded-xl p-5 card-shadow animate-scale-in mb-6 dark:bg-gray-800/40 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100 flex items-center">
-                    <Target size={18} className="mr-2 text-primary" />
-                    Goal Progress
-                  </h2>
-                  <a href="/goals" className="text-sm text-primary font-medium hover:underline">View All</a>
-                </div>
-                
-                <div className="space-y-4">
-                  {goals.length === 0 ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">No goals added yet</p>
-                  ) : (
-                    goals.slice(0, 3).map(goal => (
-                      <div key={goal.id} className="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[70%]">{goal.title}</span>
-                          <span className="text-sm text-primary font-medium">{goal.progress}%</span>
-                        </div>
-                        <Progress value={goal.progress} className="h-2" />
-                        {goal.priority && (
-                          <div className="mt-2">
-                            <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-                              goal.priority === 'high' ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200' :
-                              goal.priority === 'medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200' :
-                              'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200'
-                            }`}>
-                              {goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
-                            </span>
-                          </div>
-                        )}
+              <div className="p-5 space-y-6">
+                {goals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No goals set</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => window.location.href = '/goals'}
+                    >
+                      <Target className="mr-2 h-4 w-4" />
+                      Set your first goal
+                    </Button>
+                  </div>
+                ) : (
+                  goals.slice(0, 3).map(goal => (
+                    <div key={goal.id} className="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[70%]">{goal.title}</span>
+                        <span className="text-sm text-primary font-medium">{goal.progress}%</span>
                       </div>
-                    ))
-                  )}
-                </div>
+                      <Progress value={goal.progress} className="h-2" />
+                      {goal.priority && (
+                        <div className="mt-2">
+                          <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                            goal.priority === 'high' ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/40 dark:text-rose-200' :
+                            goal.priority === 'medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/40 dark:text-amber-200' :
+                            'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/40 dark:text-emerald-200'
+                          }`}>
+                            {goal.priority.charAt(0).toUpperCase() + goal.priority.slice(1)} Priority
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
-              
-              <TaskSummary className="h-full" />
             </div>
           </div>
         </div>
@@ -221,61 +129,61 @@ const Index = () => {
 
       {/* Add Task Dialog */}
       <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
             <DialogDescription>
-              Create a new task to track your progress
+              Create a new task with a title, category, and optional details.
             </DialogDescription>
           </DialogHeader>
+          
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="task-title">Task Title</Label>
+            <div className="grid gap-1.5">
+              <Label htmlFor="task-title" className="dark:text-gray-200 text-xs">Title</Label>
               <Input 
                 id="task-title" 
                 value={taskTitle} 
                 onChange={(e) => setTaskTitle(e.target.value)} 
                 placeholder="Enter task title" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="task-category">Category</Label>
+            
+            <div className="grid gap-1.5">
+              <Label htmlFor="task-category" className="dark:text-gray-200 text-xs">Category</Label>
               <Select value={taskCategory} onValueChange={setTaskCategory}>
-                <SelectTrigger id="task-category">
-                  <SelectValue placeholder="Select a category" />
+                <SelectTrigger id="task-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
                   {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
-                      <div className="flex items-center">
-                        <span 
-                          className="w-2 h-2 rounded-full mr-2"
-                          style={{ backgroundColor: category.color }}
-                        ></span>
-                        {category.name}
-                      </div>
+                    <SelectItem key={category.id} value={category.id} className="text-xs">
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="task-description">Description (Optional)</Label>
-              <Input
-                id="task-description"
-                value={taskDescription}
-                onChange={(e) => setTaskDescription(e.target.value)}
-                placeholder="Enter task description"
+            
+            <div className="grid gap-1.5">
+              <Label htmlFor="task-description" className="dark:text-gray-200 text-xs">Description (Optional)</Label>
+              <Input 
+                id="task-description" 
+                value={taskDescription} 
+                onChange={(e) => setTaskDescription(e.target.value)} 
+                placeholder="Enter task description" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="task-due-date">Due Date</Label>
+            
+            <div className="grid gap-1.5">
+              <Label htmlFor="task-due-date" className="dark:text-gray-200 text-xs">Due Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "justify-start text-left font-normal h-8 text-xs dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
                       !dueDate && "text-muted-foreground"
                     )}
                   >
@@ -292,28 +200,24 @@ const Index = () => {
                   />
                 </PopoverContent>
               </Popover>
-              <Input
-                id="task-due-date"
-                value={taskDueDate}
-                onChange={(e) => setTaskDueDate(e.target.value)}
-                placeholder="e.g., Today, Tomorrow, etc."
-              />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="task-priority">Priority (Optional)</Label>
+            
+            <div className="grid gap-1.5">
+              <Label htmlFor="task-priority" className="dark:text-gray-200 text-xs">Priority (Optional)</Label>
               <Select value={taskPriority} onValueChange={(value) => setTaskPriority(value as 'high' | 'medium' | 'low' | 'none')}>
-                <SelectTrigger id="task-priority">
+                <SelectTrigger id="task-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                  <SelectItem value="none" className="text-xs">None</SelectItem>
+                  <SelectItem value="high" className="text-xs">High</SelectItem>
+                  <SelectItem value="medium" className="text-xs">Medium</SelectItem>
+                  <SelectItem value="low" className="text-xs">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
+          
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddTaskOpen(false)}>Cancel</Button>
             <Button onClick={handleAddTask}>Add Task</Button>

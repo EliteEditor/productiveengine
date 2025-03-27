@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { CheckCircle2, Circle, Clock, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { Button } from '@/components/ui/button';
+import { MiniCalendar } from '@/components/calendar/MiniCalendar';
 
 interface TaskSummaryProps {
   className?: string;
@@ -11,21 +11,19 @@ interface TaskSummaryProps {
 
 const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   const { tasks, toggleTaskStatus, deleteTask, categories } = useTaskContext();
+  const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   
-  // Get today's tasks first, then upcoming tasks
+  // Get today's tasks
   const todayTasks = tasks.filter(task => {
     const dueDate = task.dueDate?.toLowerCase();
     return dueDate?.includes('today');
   });
-  
-  const upcomingTasks = tasks.filter(task => {
-    const dueDate = task.dueDate?.toLowerCase();
-    return dueDate?.includes('tomorrow') || 
-           (!dueDate?.includes('today') && task.status === 'pending');
-  }).slice(0, 4 - Math.min(todayTasks.length, 2)); // Fill up to 4 tasks
-  
-  // Combine tasks, with priority given to today's tasks
-  const displayTasks = [...todayTasks.slice(0, 2), ...upcomingTasks].slice(0, 4);
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    // Here you would typically filter tasks for the selected date
+    // This would require modifying the task data structure to include proper date fields
+  };
 
   const getStatusIcon = (status: 'completed' | 'pending', taskId: string) => {
     return (
@@ -70,21 +68,28 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   return (
     <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700", className)}>
       <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Upcoming Tasks</h2>
+        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Today's Tasks</h2>
         <a href="/tasks" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
           View All
         </a>
       </div>
+
+      <div className="px-5 py-3">
+        <MiniCalendar
+          onDateSelect={handleDateSelect}
+          className="mb-4"
+        />
+      </div>
       
       <div className="divide-y divide-gray-100 dark:divide-gray-700">
-        {displayTasks.length === 0 ? (
-          <div className="px-5 py-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">No upcoming tasks</p>
+        {todayTasks.length === 0 ? (
+          <div className="px-5 py-4 text-center">
+            <p className="text-gray-500 dark:text-gray-400">No tasks for today</p>
           </div>
         ) : (
-          displayTasks.map((task, index) => (
+          todayTasks.map((task) => (
             <div key={task.id} className={cn(
-              "px-5 py-3.5 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors",
+              "px-5 py-3 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors",
               task.status === 'completed' && "opacity-70"
             )}>
               <div className="mr-3 flex-shrink-0">
@@ -122,12 +127,6 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
             </div>
           ))
         )}
-      </div>
-      
-      <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/70">
-        <a href="/tasks" className="w-full text-sm text-primary font-medium hover:text-primary/80 transition-colors block text-center">
-          View all tasks
-        </a>
       </div>
     </div>
   );

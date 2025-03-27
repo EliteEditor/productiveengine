@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ListTodo, LineChart, Settings, Calendar, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, ListTodo, LineChart, Settings, Calendar, Target, ChevronLeft, ChevronRight, Workflow, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -50,6 +49,22 @@ const Sidebar = () => {
 
   return (
     <>
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4 z-30">
+          <div className="flex items-center">
+            <Workflow className="h-6 w-6 text-primary" />
+            <span className="ml-2 text-lg font-semibold text-primary">FlowPath</span>
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+      )}
+
       {/* Backdrop for mobile */}
       <div 
         className={cn(
@@ -59,50 +74,58 @@ const Sidebar = () => {
         onClick={() => setCollapsed(true)}
       />
       
+      {/* Sidebar */}
       <div 
         className={cn(
-          "h-screen fixed top-0 left-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
-          collapsed ? "w-[60px]" : "w-[200px]"
+          "fixed top-0 left-0 h-screen flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
+          collapsed ? "translate-x-[-100%] lg:translate-x-0 lg:w-[80px]" : "translate-x-0 w-[280px]",
+          isMobile ? "top-16" : "top-0",
+          "lg:translate-x-0" // Always show on desktop
         )}
       >
-        <div className="flex items-center justify-between p-3">
-          {!collapsed && (
-            <div className="flex items-center">
-              <span className="ml-2 text-sm font-semibold text-primary animate-fade-in">Focus</span>
-            </div>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-1 rounded-full bg-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
-          >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
-        </div>
+        {/* Desktop Header */}
+        {!isMobile && (
+          <div className="flex items-center justify-between p-4">
+            {!collapsed && (
+              <div className="flex items-center">
+                <Workflow className="h-6 w-6 text-primary" />
+                <span className="ml-2 text-lg font-semibold text-primary animate-fade-in">FlowPath</span>
+              </div>
+            )}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-2 rounded-full bg-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          </div>
+        )}
 
-        <div className="flex-1 py-4 overflow-y-auto scrollbar-none">
-          <nav className="space-y-0.5 px-2">
+        <div className="flex-1 overflow-y-auto">
+          <nav className="space-y-1 px-3">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.name}
                   to={item.path}
+                  onClick={() => isMobile && setCollapsed(true)}
                   className={cn(
-                    "flex items-center px-2 py-2 rounded-lg transition-all duration-200 group",
+                    "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group",
                     isActive 
                       ? "bg-primary/5 text-primary font-medium dark:bg-primary/10" 
                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                   )}
                 >
-                  <item.icon size={18} className={cn(
+                  <item.icon size={isMobile ? 24 : 22} className={cn(
                     "transition-all flex-shrink-0",
                     isActive ? "text-primary" : "text-gray-500 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"
                   )} />
-                  {!collapsed && (
-                    <span className="ml-2 text-xs whitespace-nowrap truncate">{item.name}</span>
+                  {(!collapsed || isMobile) && (
+                    <span className="ml-3 text-base whitespace-nowrap truncate">{item.name}</span>
                   )}
-                  {isActive && !collapsed && (
-                    <div className="w-1 h-4 bg-primary rounded-full ml-auto"/>
+                  {isActive && (!collapsed || isMobile) && (
+                    <div className="w-1 h-6 bg-primary rounded-full ml-auto"/>
                   )}
                 </Link>
               );
@@ -111,11 +134,11 @@ const Sidebar = () => {
         </div>
       </div>
       
-      {/* Add margin to main content when sidebar is open */}
+      {/* Add margin and padding to main content */}
       <div className={cn(
         "transition-all duration-300 ease-in-out",
-        collapsed ? "ml-[60px]" : "ml-[200px]",
-        isMobile && "ml-0" // No margin on mobile
+        !isMobile && (collapsed ? "ml-[80px]" : "ml-[280px]"),
+        isMobile && "mt-16" // Add top margin for mobile header
       )}></div>
     </>
   );
