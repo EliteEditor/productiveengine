@@ -1,6 +1,7 @@
 .miniCalendar {
   max-height: 120px;
   transition: max-height 0.3s ease-in-out;
+  width: 100%;
 }
 
 .miniCalendarCollapsed {
@@ -20,16 +21,18 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  width: 100%;
+  place-items: center;
 }
 
 @media (max-width: 640px) {
   .grid {
-    display: grid;
     grid-template-columns: repeat(7, minmax(32px, 1fr));
-    gap: 0.125rem;
-    overflow-x: auto;
+    gap: 0.25rem;
     padding: 0.25rem;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -49,19 +52,9 @@
   font-size: 0.875rem;
   transition: all 0.2s ease-in-out;
   position: relative;
-  min-width: 32px;
-  min-height: 32px;
-}
-
-@media (max-width: 640px) {
-  .dateButton {
-    font-size: 0.75rem;
-  }
-  
-  .dayLabel {
-    font-size: 0.65rem;
-    white-space: nowrap;
-  }
+  width: 36px;
+  height: 36px;
+  background: transparent;
 }
 
 .dateButton:hover {
@@ -72,21 +65,43 @@
   background-color: var(--primary);
   color: var(--primary-foreground);
   animation: pulseToday 2s infinite;
-  box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
 }
 
 .dateButtonToday::before {
   content: '';
   position: absolute;
   inset: -2px;
-  background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);
   border-radius: inherit;
-  opacity: 0.2;
+  background: radial-gradient(
+    circle at center,
+    var(--primary) 0%,
+    transparent 70%
+  );
+  opacity: 0.3;
   z-index: -1;
+  pointer-events: none;
 }
 
 .dateButtonSelected {
   background-color: var(--accent);
+  color: var(--accent-foreground);
+  position: relative;
+  animation: pulseSelected 2s infinite;
+}
+
+.dateButtonSelected::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at center,
+    var(--accent) 0%,
+    transparent 70%
+  );
+  opacity: 0.3;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .dayLabel {
@@ -94,6 +109,26 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted-foreground);
+  width: 36px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .dateButton {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  .dayLabel {
+    font-size: 0.65rem;
+    width: 32px;
+    height: 18px;
+    white-space: nowrap;
+  }
 }
 
 @keyframes pulseToday {
@@ -105,5 +140,17 @@
   }
   100% {
     box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+@keyframes pulseSelected {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0);
   }
 } 
