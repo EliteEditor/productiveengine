@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ListTodo, LineChart, Settings, Calendar, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const navItems = [
   {
@@ -38,8 +39,14 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+  const [collapsed, setCollapsed] = useState(isMobile);
   const location = useLocation();
+
+  // Update collapsed state when device type changes
+  useEffect(() => {
+    setCollapsed(isMobile);
+  }, [isMobile]);
 
   return (
     <>
@@ -54,7 +61,7 @@ const Sidebar = () => {
       
       <div 
         className={cn(
-          "h-screen sticky top-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
+          "h-screen fixed top-0 left-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
           collapsed ? "w-[70px]" : "w-[240px]"
         )}
       >
@@ -103,6 +110,13 @@ const Sidebar = () => {
           </nav>
         </div>
       </div>
+      
+      {/* Add margin to main content when sidebar is open */}
+      <div className={cn(
+        "transition-all duration-300 ease-in-out",
+        collapsed ? "ml-[70px]" : "ml-[240px]",
+        isMobile && "ml-0" // No margin on mobile
+      )}></div>
     </>
   );
 };

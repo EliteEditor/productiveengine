@@ -16,10 +16,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Goals = () => {
   const { goals, addGoal, deleteGoal, toggleMilestone } = useGoalContext();
   const { categories, addCategory } = useTaskContext();
+  const isMobile = useIsMobile();
   
   // State for filtering
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -248,12 +250,12 @@ const Goals = () => {
                 
                 return (
                   <div key={goal.id} className="border-b border-gray-100 dark:border-gray-700 pb-6 last:border-0 last:pb-0">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-wrap items-center justify-between mb-3 gap-2">
                       <div className="flex items-center">
-                        <Target size={18} className="text-primary mr-2" />
-                        <h3 className="font-medium text-gray-800 dark:text-gray-200">{goal.title}</h3>
+                        <Target size={18} className="text-primary mr-2 flex-shrink-0" />
+                        <h3 className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-[200px] md:max-w-[300px]">{goal.title}</h3>
                       </div>
-                      <div className="flex items-center space-x-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         {goal.priority && getPriorityBadge(goal.priority)}
                         {goal.category && (
                           <span 
@@ -263,18 +265,18 @@ const Goals = () => {
                               color: categoryColor,
                             }}
                           >
-                            <Tag size={10} className="mr-1" />
-                            {category?.name || goal.category}
+                            <Tag size={10} className="mr-1 flex-shrink-0" />
+                            <span className="truncate max-w-[80px]">{category?.name || goal.category}</span>
                           </span>
                         )}
                         <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                          <CalendarIcon size={14} className="mr-1" />
-                          {goal.deadline}
+                          <CalendarIcon size={14} className="mr-1 flex-shrink-0" />
+                          <span className="truncate max-w-[100px]">{goal.deadline}</span>
                         </span>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                          className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
                           onClick={() => deleteGoal(goal.id)}
                           title="Delete goal"
                         >
@@ -295,16 +297,16 @@ const Goals = () => {
                       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Milestones</h4>
                       <div className="space-y-2">
                         {goal.milestones.map((milestone) => (
-                          <div key={milestone.id} className="flex items-center">
+                          <div key={milestone.id} className="flex items-start">
                             <Checkbox 
                               id={milestone.id} 
-                              className="mr-2" 
+                              className="mr-2 mt-0.5" 
                               checked={milestone.completed}
                               onCheckedChange={() => toggleMilestone(goal.id, milestone.id)} 
                             />
                             <label 
                               htmlFor={milestone.id} 
-                              className={`text-sm ${
+                              className={`text-sm break-words ${
                                 milestone.completed 
                                   ? 'text-gray-500 dark:text-gray-500 line-through' 
                                   : 'text-gray-700 dark:text-gray-300'
@@ -343,7 +345,7 @@ const Goals = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
                 <div className="flex flex-col gap-2">

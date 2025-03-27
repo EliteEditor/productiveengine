@@ -12,6 +12,7 @@ import { useProductivityStats } from '@/hooks/useProductivityStats';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { useGoalContext } from '@/contexts/GoalContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const chartConfig = {
   completed: { color: "#10b981" }, // emerald
@@ -28,6 +29,7 @@ const Insights = () => {
   const { tasks } = useTaskContext();
   const { goals } = useGoalContext();
   const [timeRange, setTimeRange] = useState('week');
+  const isMobile = useIsMobile();
 
   // Calculate tasks by category
   const tasksByCategory = tasks.reduce((acc: Record<string, number>, task) => {
@@ -61,6 +63,20 @@ const Insights = () => {
     name: goal.title.substring(0, 15) + (goal.title.length > 15 ? '...' : ''),
     progress: goal.progress,
   }));
+
+  // Configure pie chart dimensions based on device
+  const pieChartConfig = {
+    outerRadius: isMobile ? 60 : 80,
+    innerRadius: isMobile ? 0 : 0,
+    labelFontSize: isMobile ? 8 : 12,
+    labelLine: !isMobile,
+  };
+  
+  // Configure label rendering for pie charts
+  const renderPieLabel = isMobile 
+    ? null 
+    : ({ name, percent }: { name: string, percent: number }) => 
+        `${name.substring(0, 8)}${name.length > 8 ? '..' : ''}: ${(percent * 100).toFixed(0)}%`;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -148,7 +164,7 @@ const Insights = () => {
               </CardTitle>
               <CardDescription>Daily completion rate over time</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
               <ChartContainer config={chartConfig}>
                 <LineChart
                   data={completionRateData}
@@ -157,13 +173,13 @@ const Insights = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="name" 
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: isMobile ? 8 : 10 }}
                     tickFormatter={(value) => value.substring(0, 3)} // Abbreviate day names on mobile
                   />
                   <YAxis 
                     unit="%" 
-                    tick={{ fontSize: 10 }}
-                    width={30}
+                    tick={{ fontSize: isMobile ? 8 : 10 }}
+                    width={isMobile ? 25 : 30}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Line 
@@ -171,7 +187,7 @@ const Insights = () => {
                     dataKey="rate" 
                     name="Completion Rate" 
                     stroke={chartConfig.success.color}
-                    activeDot={{ r: 6 }} 
+                    activeDot={{ r: isMobile ? 4 : 6 }} 
                     strokeWidth={2}
                   />
                 </LineChart>
@@ -188,18 +204,18 @@ const Insights = () => {
               </CardTitle>
               <CardDescription>Distribution of tasks across categories</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
               <ChartContainer config={chartConfig}>
                 <PieChart>
                   <Pie
                     data={tasksByCategoryData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius={pieChartConfig.outerRadius}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
+                    label={renderPieLabel}
+                    labelLine={pieChartConfig.labelLine}
                   >
                     {tasksByCategoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -222,18 +238,18 @@ const Insights = () => {
               </CardTitle>
               <CardDescription>Distribution of task completion status</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
               <ChartContainer config={chartConfig}>
                 <PieChart>
                   <Pie
                     data={taskStatusData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius={pieChartConfig.outerRadius}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
+                    label={renderPieLabel}
+                    labelLine={pieChartConfig.labelLine}
                   >
                     <Cell fill="#10b981" /> {/* Completed */}
                     <Cell fill="#ef4444" /> {/* Pending */}
@@ -253,7 +269,7 @@ const Insights = () => {
               </CardTitle>
               <CardDescription>Progress across your goals</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
               <ChartContainer config={chartConfig}>
                 <BarChart
                   data={goalProgressData}
@@ -264,13 +280,13 @@ const Insights = () => {
                   <XAxis 
                     type="number" 
                     domain={[0, 100]} 
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: isMobile ? 8 : 10 }}
                   />
                   <YAxis 
                     dataKey="name" 
                     type="category" 
-                    width={80}
-                    tick={{ fontSize: 10 }}
+                    width={isMobile ? 60 : 80}
+                    tick={{ fontSize: isMobile ? 8 : 10 }}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="progress" name="Progress" fill={chartConfig.goal.color} />
