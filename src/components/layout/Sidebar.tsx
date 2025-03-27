@@ -62,25 +62,25 @@ const Sidebar = () => {
       <div 
         className={cn(
           "h-screen fixed top-0 left-0 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out z-30",
-          collapsed ? "w-[70px]" : "w-[240px]"
+          collapsed ? "w-[60px]" : "w-[200px]"
         )}
       >
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-3">
           {!collapsed && (
             <div className="flex items-center">
-              <span className="ml-2 text-lg font-semibold text-primary animate-fade-in">Focus</span>
+              <span className="ml-2 text-sm font-semibold text-primary animate-fade-in">Focus</span>
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-full bg-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            className="p-1 rounded-full bg-secondary hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
         </div>
 
-        <div className="flex-1 py-8 overflow-y-auto scrollbar-none">
-          <nav className="space-y-1 px-2">
+        <div className="flex-1 py-4 overflow-y-auto scrollbar-none">
+          <nav className="space-y-0.5 px-2">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -88,21 +88,21 @@ const Sidebar = () => {
                   key={item.name}
                   to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group",
+                    "flex items-center px-2 py-2 rounded-lg transition-all duration-200 group",
                     isActive 
                       ? "bg-primary/5 text-primary font-medium dark:bg-primary/10" 
                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                   )}
                 >
-                  <item.icon size={20} className={cn(
+                  <item.icon size={18} className={cn(
                     "transition-all flex-shrink-0",
                     isActive ? "text-primary" : "text-gray-500 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"
                   )} />
                   {!collapsed && (
-                    <span className="ml-3 whitespace-nowrap truncate">{item.name}</span>
+                    <span className="ml-2 text-xs whitespace-nowrap truncate">{item.name}</span>
                   )}
                   {isActive && !collapsed && (
-                    <div className="w-1 h-5 bg-primary rounded-full ml-auto"/>
+                    <div className="w-1 h-4 bg-primary rounded-full ml-auto"/>
                   )}
                 </Link>
               );
@@ -114,7 +114,7 @@ const Sidebar = () => {
       {/* Add margin to main content when sidebar is open */}
       <div className={cn(
         "transition-all duration-300 ease-in-out",
-        collapsed ? "ml-[70px]" : "ml-[240px]",
+        collapsed ? "ml-[60px]" : "ml-[200px]",
         isMobile && "ml-0" // No margin on mobile
       )}></div>
     </>
