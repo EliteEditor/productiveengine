@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -52,56 +51,15 @@ interface TaskProviderProps {
 }
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
-  // Initialize with sample tasks
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: 'Finalize project proposal',
-      status: 'pending',
-      category: 'work',
-      dueDate: 'Today, 5:00 PM',
-      description: 'Complete the final draft and send it to the client for review',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Grocery shopping',
-      status: 'pending',
-      category: 'personal',
-      dueDate: 'Tomorrow',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      title: 'Fix critical bug in production',
-      status: 'pending',
-      category: 'urgent',
-      dueDate: 'Today, 12:00 PM',
-      priority: 'high'
-    },
-    {
-      id: '4',
-      title: 'Complete online course module',
-      status: 'pending',
-      category: 'learning',
-      dueDate: 'Friday',
-      priority: 'low'
-    },
-    {
-      id: '5',
-      title: 'Update portfolio website',
-      status: 'completed',
-      category: 'personal',
-      priority: 'medium'
-    }
-  ]);
-
+  // Initialize with empty tasks array instead of sample tasks
+  const [tasks, setTasks] = useState<Task[]>([]);
+  
   // Initialize with default categories
   const [categories, setCategories] = useState<Category[]>([
-    { id: 'work', name: 'Work', color: '#3b82f6' }, // blue
-    { id: 'personal', name: 'Personal', color: '#10b981' }, // green
-    { id: 'urgent', name: 'Urgent', color: '#ef4444' }, // red
-    { id: 'learning', name: 'Learning', color: '#8b5cf6' }, // purple
+    { id: 'work', name: 'Work', color: '#3b82f6' },
+    { id: 'personal', name: 'Personal', color: '#10b981' },
+    { id: 'urgent', name: 'Urgent', color: '#ef4444' },
+    { id: 'learning', name: 'Learning', color: '#8b5cf6' },
   ]);
 
   // Add a new task
