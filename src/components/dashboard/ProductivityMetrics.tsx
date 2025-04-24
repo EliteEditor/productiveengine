@@ -13,10 +13,15 @@ const ProductivityMetrics = () => {
   const stats = useProductivityStats();
   const { weeklyCompletionRate } = useWeeklyPerformance();
   
-  // Calculate completion rate for display
-  const completedTasks = tasks.filter(task => task.status === 'completed').length;
-  const totalTasks = tasks.length;
-  const tasksRatio = `${completedTasks}/${totalTasks}`;
+  // Calculate today's tasks completion rate
+  const todayTasks = tasks.filter(task => {
+    const dueDate = task.dueDate?.toLowerCase();
+    return dueDate?.includes('today');
+  });
+  
+  const completedTodayTasks = todayTasks.filter(task => task.status === 'completed').length;
+  const totalTodayTasks = todayTasks.length;
+  const todayTasksRatio = `${completedTodayTasks}/${totalTodayTasks}`;
   
   // Calculate average goal progress
   const goalProgress = goals.length > 0
@@ -26,7 +31,7 @@ const ProductivityMetrics = () => {
   // Calculate trends
   const taskTrend = { 
     value: 4, 
-    isPositive: completedTasks > 0
+    isPositive: completedTodayTasks > 0
   };
   
   const goalTrend = {
@@ -42,8 +47,8 @@ const ProductivityMetrics = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <StatCard
-        title="Tasks Completed"
-        value={tasksRatio}
+        title="Today's Tasks Completed"
+        value={todayTasksRatio}
         icon={<CalendarCheck size={18} className="dark:text-blue-300" />}
         trend={taskTrend}
         className="animate-delay-200"
