@@ -1,10 +1,8 @@
-
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Tag, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTaskContext, Task } from '@/contexts/TaskContext';
-import { Tag } from 'lucide-react';
 
 interface TaskListProps {
   tasks: Task[];
