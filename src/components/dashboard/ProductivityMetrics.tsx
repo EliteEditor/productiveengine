@@ -1,15 +1,17 @@
 
 import React from 'react';
-import { CalendarCheck, Target, BrainCircuit } from 'lucide-react';
+import { CalendarCheck, Target, Activity } from 'lucide-react';
 import StatCard from '../ui/StatCard';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { useGoalContext } from '@/contexts/GoalContext';
 import { useProductivityStats } from '@/hooks/useProductivityStats';
+import { useWeeklyPerformance } from '@/hooks/useWeeklyPerformance';
 
 const ProductivityMetrics = () => {
   const { tasks } = useTaskContext();
   const { goals } = useGoalContext();
   const stats = useProductivityStats();
+  const { weeklyCompletionRate } = useWeeklyPerformance();
   
   // Calculate completion rate for display
   const completedTasks = tasks.filter(task => task.status === 'completed').length;
@@ -21,10 +23,7 @@ const ProductivityMetrics = () => {
     ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length)
     : 0;
   
-  // Calculate focus score based on completed tasks and goal progress
-  const focusScore = Math.round((stats.completionRate * 0.6) + (goalProgress * 0.4));
-  
-  // Calculate trends (using the stats from the hook)
+  // Calculate trends
   const taskTrend = { 
     value: 4, 
     isPositive: completedTasks > 0
@@ -35,9 +34,9 @@ const ProductivityMetrics = () => {
     isPositive: goalProgress > 50
   };
   
-  const focusTrend = {
-    value: 8,
-    isPositive: focusScore > 70
+  const weeklyTrend = {
+    value: 5,
+    isPositive: weeklyCompletionRate > 50
   };
 
   return (
@@ -59,10 +58,10 @@ const ProductivityMetrics = () => {
       />
       
       <StatCard
-        title="Focus Score"
-        value={focusScore}
-        icon={<BrainCircuit size={18} className="dark:text-blue-300" />}
-        trend={focusTrend}
+        title="Weekly Performance"
+        value={`${weeklyCompletionRate}%`}
+        icon={<Activity size={18} className="dark:text-blue-300" />}
+        trend={weeklyTrend}
         className="animate-delay-400"
       />
     </div>

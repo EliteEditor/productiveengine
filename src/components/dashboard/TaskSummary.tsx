@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { Button } from '@/components/ui/button';
 import { MiniCalendar } from '@/components/calendar/MiniCalendar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TaskSummaryProps {
   className?: string;
@@ -17,6 +18,12 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   const todayTasks = tasks.filter(task => {
     const dueDate = task.dueDate?.toLowerCase();
     return dueDate?.includes('today');
+  });
+
+  // Get long-term tasks (not due today)
+  const longTermTasks = tasks.filter(task => {
+    const dueDate = task.dueDate?.toLowerCase();
+    return !dueDate?.includes('today');
   });
 
   const handleDateSelect = (date: Date) => {
@@ -65,10 +72,58 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
     }
   };
 
+  const renderTaskList = (taskList: typeof tasks) => {
+    return taskList.length === 0 ? (
+      <div className="px-5 py-4 text-center">
+        <p className="text-gray-500 dark:text-gray-400">No tasks found</p>
+      </div>
+    ) : (
+      taskList.map((task) => (
+        <div key={task.id} className={cn(
+          "px-5 py-3 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors",
+          task.status === 'completed' && "opacity-70"
+        )}>
+          <div className="mr-3 flex-shrink-0">
+            {getStatusIcon(task.status, task.id)}
+          </div>
+          
+          <div className="flex-1 min-w-0 mr-2">
+            <p className={cn(
+              "text-sm font-medium text-gray-800 dark:text-gray-200 truncate",
+              task.status === 'completed' && "line-through text-gray-500 dark:text-gray-400"
+            )}>
+              {task.title}
+            </p>
+            
+            {task.dueDate && (
+              <div className="flex items-center mt-1">
+                <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1 flex-shrink-0" />
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{task.dueDate}</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {getPriorityBadge(task.priority)}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
+              onClick={() => deleteTask(task.id)}
+              title="Delete task"
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        </div>
+      ))
+    );
+  };
+
   return (
     <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700", className)}>
       <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Today's Tasks</h2>
+        <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Tasks</h2>
         <a href="/tasks" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">
           View All
         </a>
@@ -81,53 +136,18 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
         />
       </div>
       
-      <div className="divide-y divide-gray-100 dark:divide-gray-700">
-        {todayTasks.length === 0 ? (
-          <div className="px-5 py-4 text-center">
-            <p className="text-gray-500 dark:text-gray-400">No tasks for today</p>
-          </div>
-        ) : (
-          todayTasks.map((task) => (
-            <div key={task.id} className={cn(
-              "px-5 py-3 flex items-center hover:bg-gray-50/50 dark:hover:bg-gray-800/70 transition-colors",
-              task.status === 'completed' && "opacity-70"
-            )}>
-              <div className="mr-3 flex-shrink-0">
-                {getStatusIcon(task.status, task.id)}
-              </div>
-              
-              <div className="flex-1 min-w-0 mr-2">
-                <p className={cn(
-                  "text-sm font-medium text-gray-800 dark:text-gray-200 truncate",
-                  task.status === 'completed' && "line-through text-gray-500 dark:text-gray-400"
-                )}>
-                  {task.title}
-                </p>
-                
-                {task.dueDate && (
-                  <div className="flex items-center mt-1">
-                    <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1 flex-shrink-0" />
-                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{task.dueDate}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-2 flex-shrink-0">
-                {getPriorityBadge(task.priority)}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full"
-                  onClick={() => deleteTask(task.id)}
-                  title="Delete task"
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      <Tabs defaultValue="today" className="w-full">
+        <TabsList className="w-full justify-start px-5 border-b border-gray-100 dark:border-gray-700">
+          <TabsTrigger value="today" className="text-sm">Today's Tasks</TabsTrigger>
+          <TabsTrigger value="long-term" className="text-sm">Long-term Tasks</TabsTrigger>
+        </TabsList>
+        <TabsContent value="today" className="mt-0 divide-y divide-gray-100 dark:divide-gray-700">
+          {renderTaskList(todayTasks)}
+        </TabsContent>
+        <TabsContent value="long-term" className="mt-0 divide-y divide-gray-100 dark:divide-gray-700">
+          {renderTaskList(longTermTasks)}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
