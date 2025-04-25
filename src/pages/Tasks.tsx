@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { ListPlus, Filter, Tag, Calendar as CalendarIcon, Plus } from 'lucide-react';
@@ -14,6 +13,7 @@ const Tasks = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'today' | 'long-term'>('today');
   
   // Filter tasks based on due date and category
   const getTodayTasks = (categoryFilter: string | null = null) => {
@@ -90,7 +90,7 @@ const Tasks = () => {
             </Button>
           </div>
           
-          <Tabs defaultValue="today" className="w-full">
+          <Tabs defaultValue="today" className="w-full" onValueChange={(value) => setActiveTab(value as 'today' | 'long-term')}>
             <TabsList className="mb-4">
               <TabsTrigger value="today">Today's Tasks</TabsTrigger>
               <TabsTrigger value="long-term">Long-term Tasks</TabsTrigger>
@@ -110,6 +110,7 @@ const Tasks = () => {
       <AddTaskDialog 
         open={isAddTaskOpen} 
         onOpenChange={setIsAddTaskOpen}
+        taskType={activeTab === 'today' ? 'today' : 'longterm'}
       />
 
       <AddCategoryDialog 

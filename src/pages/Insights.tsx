@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { 
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
-  Legend, ResponsiveContainer, PieChart, Pie, Cell 
+  Legend, ResponsiveContainer, PieChart, Pie, Cell, Area 
 } from 'recharts';
-import { Calendar, Clock, TrendingUp, ListChecks, BarChart as BarChartIcon, Trophy } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, ListChecks, BarChart as BarChartIcon, Trophy, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProductivityStats } from '@/hooks/useProductivityStats';
 import { useTaskContext } from '@/contexts/TaskContext';
@@ -108,104 +107,118 @@ const Insights = () => {
         
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Completion Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
+          <Card className="bg-background border border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-primary">Completion Rate</CardTitle>
+              <TrendingUp className="h-5 w-5 text-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Math.round(stats.completionRate)}%</div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Task completion rate {timeRange === 'week' ? 'this week' : timeRange === 'month' ? 'this month' : 'this quarter'}</p>
+              <div className="text-2xl font-bold text-foreground">{Math.round(stats.completionRate)}%</div>
+              <p className="text-xs text-muted-foreground mt-1">Task completion rate {timeRange === 'week' ? 'this week' : timeRange === 'month' ? 'this month' : 'this quarter'}</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Tasks Completed</CardTitle>
-              <ListChecks className="h-4 w-4 text-blue-500" />
+          <Card className="bg-background border border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-primary">Tasks Completed</CardTitle>
+              <ListChecks className="h-5 w-5 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedTasks}</div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Out of {stats.totalTasks} total tasks</p>
+              <div className="text-2xl font-bold text-foreground">{stats.completedTasks}</div>
+              <p className="text-xs text-muted-foreground mt-1">Out of {stats.totalTasks} total tasks</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Today's Tasks</CardTitle>
-              <Calendar className="h-4 w-4 text-indigo-500" />
+          <Card className="bg-background border border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-primary">Today's Tasks</CardTitle>
+              <Calendar className="h-5 w-5 text-indigo-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedToday}/{stats.tasksToday}</div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Tasks completed today</p>
+              <div className="text-2xl font-bold text-foreground">{stats.completedToday}/{stats.tasksToday}</div>
+              <p className="text-xs text-muted-foreground mt-1">Tasks completed today</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Goal Progress</CardTitle>
-              <Trophy className="h-4 w-4 text-amber-500" />
+          <Card className="bg-background border border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-primary">Goal Progress</CardTitle>
+              <Trophy className="h-5 w-5 text-amber-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{Math.round(stats.goalProgress)}%</div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Average progress across all goals</p>
+              <div className="text-2xl font-bold text-foreground">{Math.round(stats.goalProgress)}%</div>
+              <p className="text-xs text-muted-foreground mt-1">Average progress across all goals</p>
             </CardContent>
           </Card>
         </div>
         
         {/* Chart Section - Mobile optimized */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Daily Completion Rate Chart */}
-          <Card>
+          {/* Productivity Score Chart */}
+          <Card className="bg-background border border-border">
             <CardHeader>
-              <CardTitle className="text-lg font-medium flex items-center">
-                <BarChartIcon size={18} className="mr-2 text-primary" />
-                Task Completion Rate
+              <CardTitle className="text-lg font-medium flex items-center text-primary">
+                <Zap size={20} className="mr-2 text-primary" />
+                Productivity Score
               </CardTitle>
-              <CardDescription>Daily completion rate over time</CardDescription>
+              <CardDescription className="text-muted-foreground">Your daily productivity score</CardDescription>
             </CardHeader>
-            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
-              <ChartContainer config={chartConfig}>
-                <LineChart
-                  data={completionRateData}
-                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+            <CardContent className="min-h-[400px] p-6 bg-background/95 rounded-lg">
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={[
+                    { day: 'Mon', score: 85, efficiency: 75 },
+                    { day: 'Tue', score: 92, efficiency: 80 },
+                    { day: 'Wed', score: 78, efficiency: 70 },
+                    { day: 'Thu', score: 95, efficiency: 85 },
+                    { day: 'Fri', score: 88, efficiency: 78 },
+                    { day: 'Sat', score: 72, efficiency: 65 },
+                    { day: 'Sun', score: 70, efficiency: 60 }
+                  ]}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fontSize: isMobile ? 8 : 10 }}
-                    tickFormatter={(value) => value.substring(0, 3)} // Abbreviate day names on mobile
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+                  <XAxis
+                    dataKey="day"
+                    stroke="#888888"
+                    tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
                   />
-                  <YAxis 
-                    unit="%" 
-                    tick={{ fontSize: isMobile ? 8 : 10 }}
-                    width={isMobile ? 25 : 30}
+                  <YAxis
+                    stroke="#888888"
+                    tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
+                    width={isMobile ? 35 : 40}
+                    domain={[0, 100]}
+                    label={{ value: 'Score', angle: -90, position: 'insideLeft', fill: '#888888' }}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="rate" 
-                    name="Completion Rate" 
-                    stroke={chartConfig.success.color}
-                    activeDot={{ r: isMobile ? 4 : 6 }} 
-                    strokeWidth={2}
+                  <Bar 
+                    dataKey="score" 
+                    name="Productivity Score" 
+                    fill="#3b82f6"
+                    radius={[4, 4, 0, 0]}
                   />
-                </LineChart>
-              </ChartContainer>
+                  <Bar 
+                    dataKey="efficiency" 
+                    name="Efficiency" 
+                    fill="#10b981"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
           
           {/* Tasks by Category Chart */}
-          <Card>
+          <Card className="bg-background border border-border">
             <CardHeader>
-              <CardTitle className="text-lg font-medium flex items-center">
-                <BarChartIcon size={18} className="mr-2 text-primary" />
+              <CardTitle className="text-lg font-medium flex items-center text-primary">
+                <BarChartIcon size={20} className="mr-2 text-primary" />
                 Tasks by Category
               </CardTitle>
-              <CardDescription>Distribution of tasks across categories</CardDescription>
+              <CardDescription className="text-muted-foreground">Distribution of tasks across categories</CardDescription>
             </CardHeader>
-            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
-              <ChartContainer config={chartConfig}>
+            <CardContent className="min-h-[400px] p-6">
+              <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
                   <Pie
                     data={tasksByCategoryData}
@@ -223,23 +236,23 @@ const Insights = () => {
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
                 </PieChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Task Status Distribution */}
-          <Card>
+          <Card className="bg-background border border-border">
             <CardHeader>
-              <CardTitle className="text-lg font-medium flex items-center">
-                <BarChartIcon size={18} className="mr-2 text-primary" />
+              <CardTitle className="text-lg font-medium flex items-center text-primary">
+                <BarChartIcon size={20} className="mr-2 text-primary" />
                 Task Status
               </CardTitle>
-              <CardDescription>Distribution of task completion status</CardDescription>
+              <CardDescription className="text-muted-foreground">Distribution of task completion status</CardDescription>
             </CardHeader>
-            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
-              <ChartContainer config={chartConfig}>
+            <CardContent className="min-h-[400px] p-6">
+              <ResponsiveContainer width="100%" height={400}>
                 <PieChart>
                   <Pie
                     data={taskStatusData}
@@ -256,42 +269,44 @@ const Insights = () => {
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
                 </PieChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
           
           {/* Goal Progress Chart */}
-          <Card>
+          <Card className="bg-background border border-border">
             <CardHeader>
-              <CardTitle className="text-lg font-medium flex items-center">
-                <BarChartIcon size={18} className="mr-2 text-primary" />
+              <CardTitle className="text-lg font-medium flex items-center text-primary">
+                <BarChartIcon size={20} className="mr-2 text-primary" />
                 Goal Progress
               </CardTitle>
-              <CardDescription>Progress across your goals</CardDescription>
+              <CardDescription className="text-muted-foreground">Progress across your goals</CardDescription>
             </CardHeader>
-            <CardContent className={`${isMobile ? 'h-64' : 'h-80'}`}>
-              <ChartContainer config={chartConfig}>
+            <CardContent className="min-h-[400px] p-6">
+              <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                   data={goalProgressData}
-                  margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
                   layout="vertical"
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis 
                     type="number" 
                     domain={[0, 100]} 
-                    tick={{ fontSize: isMobile ? 8 : 10 }}
+                    stroke="currentColor"
+                    tick={{ fill: 'currentColor', fontSize: isMobile ? 8 : 10 }}
                   />
                   <YAxis 
                     dataKey="name" 
                     type="category" 
                     width={isMobile ? 60 : 80}
-                    tick={{ fontSize: isMobile ? 8 : 10 }}
+                    stroke="currentColor"
+                    tick={{ fill: 'currentColor', fontSize: isMobile ? 8 : 10 }}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="progress" name="Progress" fill={chartConfig.goal.color} />
                 </BarChart>
-              </ChartContainer>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>

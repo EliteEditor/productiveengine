@@ -14,17 +14,18 @@ import { useTaskContext } from '@/contexts/TaskContext';
 interface AddTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  taskType?: 'today' | 'longterm';
 }
 
-const AddTaskDialog = ({ open, onOpenChange }: AddTaskDialogProps) => {
+const AddTaskDialog = ({ open, onOpenChange, taskType = 'today' }: AddTaskDialogProps) => {
   const { addTask, categories } = useTaskContext();
   const [taskTitle, setTaskTitle] = useState('');
   const [taskCategory, setTaskCategory] = useState(categories[0]?.id || 'work');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
-  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [dueDate, setDueDate] = useState<Date | undefined>(taskType === 'today' ? new Date() : undefined);
   const [useDatePicker, setUseDatePicker] = useState(true);
-  const [customDueDate, setCustomDueDate] = useState('');
+  const [customDueDate, setCustomDueDate] = useState(taskType === 'today' ? 'Today' : '');
 
   const handleAddTask = () => {
     if (taskTitle.trim() === '') {
@@ -32,22 +33,24 @@ const AddTaskDialog = ({ open, onOpenChange }: AddTaskDialogProps) => {
     }
 
     // Format the due date
-    let dueDateString: string | undefined = undefined;
+    let dueDateString: string | undefined = taskType === 'today' ? 'Today' : undefined;
     
-    if (useDatePicker && dueDate) {
-      const today = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(today.getDate() + 1);
-      
-      if (dueDate.toDateString() === today.toDateString()) {
-        dueDateString = 'Today';
-      } else if (dueDate.toDateString() === tomorrow.toDateString()) {
-        dueDateString = 'Tomorrow';
-      } else {
-        dueDateString = format(dueDate, 'MMMM d, yyyy');
+    if (taskType === 'longterm') {
+      if (useDatePicker && dueDate) {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+        
+        if (dueDate.toDateString() === today.toDateString()) {
+          dueDateString = 'Today';
+        } else if (dueDate.toDateString() === tomorrow.toDateString()) {
+          dueDateString = 'Tomorrow';
+        } else {
+          dueDateString = format(dueDate, 'MMMM d, yyyy');
+        }
+      } else if (!useDatePicker && customDueDate) {
+        dueDateString = customDueDate;
       }
-    } else if (!useDatePicker && customDueDate) {
-      dueDateString = customDueDate;
     }
 
     addTask({
@@ -63,8 +66,8 @@ const AddTaskDialog = ({ open, onOpenChange }: AddTaskDialogProps) => {
     setTaskTitle('');
     setTaskCategory(categories[0]?.id || 'work');
     setTaskDescription('');
-    setDueDate(undefined);
-    setCustomDueDate('');
+    setDueDate(taskType === 'today' ? new Date() : undefined);
+    setCustomDueDate(taskType === 'today' ? 'Today' : '');
     setTaskPriority('none');
     onOpenChange(false);
   };
@@ -74,7 +77,9 @@ const AddTaskDialog = ({ open, onOpenChange }: AddTaskDialogProps) => {
       <DialogContent className="sm:max-w-[400px] dark:bg-gray-800 dark:border-gray-700">
         <DialogHeader>
           <DialogTitle className="dark:text-gray-100 text-base">Add New Task</DialogTitle>
-          <DialogDescription className="dark:text-gray-300 text-xs">Create a new task to track your progress</DialogDescription>
+          <DialogDescription className="dark:text-gray-300 text-xs">
+            Create a new {taskType === 'today' ? "today's" : 'long-term'} task to track your progress
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-3">
           <div className="grid gap-1.5">
@@ -132,60 +137,62 @@ const AddTaskDialog = ({ open, onOpenChange }: AddTaskDialogProps) => {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-1.5">
-            <div className="flex justify-between">
-              <Label className="dark:text-gray-200 text-xs">Due Date (Optional)</Label>
-              <div className="flex gap-2 items-center">
-                <Label 
-                  htmlFor="use-date-picker" 
-                  className="text-[10px] cursor-pointer dark:text-gray-300"
-                  onClick={() => setUseDatePicker(true)}
-                >
-                  <span className={`${useDatePicker ? 'text-primary font-medium' : ''}`}>Date Picker</span>
-                </Label>
-                <span className="dark:text-gray-400">|</span>
-                <Label 
-                  htmlFor="use-custom-date" 
-                  className="text-[10px] cursor-pointer dark:text-gray-300"
-                  onClick={() => setUseDatePicker(false)}
-                >
-                  <span className={`${!useDatePicker ? 'text-primary font-medium' : ''}`}>Custom</span>
-                </Label>
-              </div>
-            </div>
-            
-            {useDatePicker ? (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs",
-                      !dueDate && "text-muted-foreground dark:text-gray-400"
-                    )}
+          {taskType === 'longterm' && (
+            <div className="grid gap-1.5">
+              <div className="flex justify-between">
+                <Label className="dark:text-gray-200 text-xs">Due Date (Optional)</Label>
+                <div className="flex gap-2 items-center">
+                  <Label 
+                    htmlFor="use-date-picker" 
+                    className="text-[10px] cursor-pointer dark:text-gray-300"
+                    onClick={() => setUseDatePicker(true)}
                   >
-                    <CalendarIcon className="mr-2 h-3 w-3" />
-                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={setDueDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            ) : (
-              <Input 
-                value={customDueDate} 
-                onChange={(e) => setCustomDueDate(e.target.value)} 
-                placeholder="e.g., Today, Tomorrow, Next week" 
-                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs"
-              />
-            )}
-          </div>
+                    <span className={`${useDatePicker ? 'text-primary font-medium' : ''}`}>Date Picker</span>
+                  </Label>
+                  <span className="dark:text-gray-400">|</span>
+                  <Label 
+                    htmlFor="use-custom-date" 
+                    className="text-[10px] cursor-pointer dark:text-gray-300"
+                    onClick={() => setUseDatePicker(false)}
+                  >
+                    <span className={`${!useDatePicker ? 'text-primary font-medium' : ''}`}>Custom</span>
+                  </Label>
+                </div>
+              </div>
+              
+              {useDatePicker ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs",
+                        !dueDate && "text-muted-foreground dark:text-gray-400"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-3 w-3" />
+                      {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dueDate}
+                      onSelect={setDueDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <Input 
+                  value={customDueDate} 
+                  onChange={(e) => setCustomDueDate(e.target.value)} 
+                  placeholder="e.g., Tomorrow, Next week" 
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 h-8 text-xs"
+                />
+              )}
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} className="dark:border-gray-600 dark:text-gray-200 text-xs h-8">Cancel</Button>
