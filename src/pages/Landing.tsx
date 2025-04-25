@@ -123,7 +123,6 @@ const Landing = () => {
           
           <nav className="hidden md:flex items-center space-x-6">
             <a href="#features" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors">Features</a>
-            <a href="#testimonials" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors">Testimonials</a>
             <a href="#pricing" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors">Pricing</a>
             <a href="#faq" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors">FAQ</a>
           </nav>
@@ -149,9 +148,9 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section with gradient background */}
       <section className="relative pt-32 pb-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-blue-600/90 z-0"></div>
         <div className="absolute inset-0 bg-[url('/lovable-uploads/0af50631-05fb-4b6d-8732-fb84e724a6df.png')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
         <div className="container relative z-10 mx-auto px-4 text-center">
           <div className="max-w-5xl mx-auto mb-10">
@@ -302,20 +301,10 @@ const Landing = () => {
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-primary rounded-xl blur-lg opacity-50"></div>
               <div className="relative rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
                 <img 
-                  src="/lovable-uploads/7a70b9c1-412e-4fb0-b190-c696c7cbea7c.png" 
+                  src="/lovable-uploads/386ba8e1-5813-47f7-af09-493cad35bfb2.png" 
                   alt="FlowPath Dashboard Preview" 
                   className="w-full rounded-lg"
                 />
-              </div>
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                <div className="flex space-x-2">
-                  {[0, 1, 2, 3].map(i => (
-                    <div 
-                      key={i} 
-                      className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'}`}
-                    ></div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

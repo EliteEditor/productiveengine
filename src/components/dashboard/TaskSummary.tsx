@@ -128,13 +128,6 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
           View All
         </a>
       </div>
-
-      <div className="px-5 py-3">
-        <MiniCalendar
-          onDateSelect={handleDateSelect}
-          className="mb-4"
-        />
-      </div>
       
       <Tabs defaultValue="today" className="w-full">
         <TabsList className="w-full justify-start px-5 border-b border-gray-100 dark:border-gray-700">
@@ -145,6 +138,12 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
           {renderTaskList(todayTasks)}
         </TabsContent>
         <TabsContent value="long-term" className="mt-0 divide-y divide-gray-100 dark:divide-gray-700">
+          <div className="px-5 py-3">
+            <MiniCalendar
+              onDateSelect={handleDateSelect}
+              className="mb-4"
+            />
+          </div>
           {renderTaskList(longTermTasks)}
         </TabsContent>
       </Tabs>
