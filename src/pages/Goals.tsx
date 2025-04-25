@@ -511,18 +511,6 @@ const Goals = () => {
                       />
                     </PopoverContent>
                   </Popover>
-                  
-                  <div className="flex items-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Or manually enter:</span>
-                  </div>
-                  
-                  <Input 
-                    id="goal-deadline" 
-                    value={goalDeadline} 
-                    onChange={(e) => setGoalDeadline(e.target.value)} 
-                    placeholder="e.g., June 30, 2023" 
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                  />
                 </div>
               </div>
               
@@ -669,18 +657,6 @@ const Goals = () => {
                       />
                     </PopoverContent>
                   </Popover>
-                  
-                  <div className="flex items-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Or manually enter:</span>
-                  </div>
-                  
-                  <Input 
-                    id="goal-deadline" 
-                    value={goalDeadline} 
-                    onChange={(e) => setGoalDeadline(e.target.value)} 
-                    placeholder="e.g., June 30, 2023" 
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                  />
                 </div>
               </div>
               

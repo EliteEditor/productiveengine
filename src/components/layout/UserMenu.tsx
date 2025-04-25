@@ -1,4 +1,3 @@
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +11,12 @@ import { User, Settings, LogOut } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "sonner"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { cn } from "@/lib/utils"
 
 export function UserMenu() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   const handleLogout = async () => {
     try {
@@ -28,7 +30,11 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
           <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
         </Button>
       </DropdownMenuTrigger>

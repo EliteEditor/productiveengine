@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Command } from 'lucide-react';
 import { Input } from "@/components/ui/input";
@@ -17,6 +16,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { UserMenu } from './UserMenu';
 import { NotificationsMenu } from './NotificationsMenu';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   title?: string;
@@ -27,6 +28,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   const { tasks } = useTaskContext();
   const { goals } = useGoalContext();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -70,31 +72,31 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     <>
       <header className="sticky top-0 z-20 w-full bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          {title && (
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">{title}</h1>
-          )}
-          
           <div className="flex-1 max-w-md mx-4">
-            <div className="relative" onClick={handleSearchClick}>
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input 
-                type="search" 
-                placeholder="Search... (Press Ctrl+K)" 
-                className="pl-8 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-full cursor-pointer"
-                readOnly
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:flex items-center space-x-1">
-                <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-xs font-medium text-muted-foreground">
-                  <span className="text-xs">Ctrl</span>K
-                </kbd>
+            {!isMobile && (
+              <div className="relative" onClick={handleSearchClick}>
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input 
+                  type="search" 
+                  placeholder="Search... (Press Ctrl+K)" 
+                  className="pl-8 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-full cursor-pointer"
+                  readOnly
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:flex items-center space-x-1">
+                  <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-xs font-medium text-muted-foreground">
+                    <span className="text-xs">Ctrl</span>K
+                  </kbd>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           
-          <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            <NotificationsMenu />
-            <UserMenu />
+          <div className="flex items-center">
+            <div className="flex items-center gap-6">
+              <ThemeToggle />
+              <NotificationsMenu />
+              <UserMenu />
+            </div>
           </div>
         </div>
       </header>
@@ -133,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
           
           <CommandSeparator />
           
-          <CommandGroup heading="Tasks">
+          <CommandGroup heading="Recent Tasks">
             {tasks.slice(0, 5).map((task) => (
               <CommandItem 
                 key={task.id} 

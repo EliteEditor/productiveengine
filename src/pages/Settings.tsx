@@ -22,6 +22,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings';
+import { AccountSettings } from '@/components/settings/AccountSettings';
 import { Separator } from '@/components/ui/separator';
 
 const Settings = () => {
@@ -55,6 +56,10 @@ const Settings = () => {
                 Manage your app settings and preferences.
               </p>
             </div>
+            
+            <Separator />
+            
+            <AccountSettings />
             
             <Separator />
             
