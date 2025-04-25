@@ -63,7 +63,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     { id: 'learning', name: 'Learning', color: '#8b5cf6' },
   ]);
 
-  // Load user's tasks when component mounts
+  // Load user's tasks when component mounts or auth state changes
   useEffect(() => {
     const loadUserTasks = async () => {
       try {
@@ -77,6 +77,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
           if (error) throw error;
           setTasks(userTasks || []);
+        } else {
+          setTasks([]); // Clear tasks if no user
         }
       } catch (error) {
         console.error('Error loading tasks:', error);
@@ -84,7 +86,21 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       }
     };
 
+    // Initial load
     loadUserTasks();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUserTasks();
+      } else {
+        setTasks([]); // Clear tasks on logout
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Add a new task

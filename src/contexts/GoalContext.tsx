@@ -49,7 +49,7 @@ interface GoalProviderProps {
 export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
 
-  // Load user's goals when component mounts
+  // Load user's goals when component mounts or auth state changes
   useEffect(() => {
     const loadUserGoals = async () => {
       try {
@@ -63,6 +63,8 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
 
           if (error) throw error;
           setGoals(userGoals || []);
+        } else {
+          setGoals([]); // Clear goals if no user
         }
       } catch (error) {
         console.error('Error loading goals:', error);
@@ -70,7 +72,21 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
       }
     };
 
+    // Initial load
     loadUserGoals();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUserGoals();
+      } else {
+        setGoals([]); // Clear goals on logout
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Add a new goal
