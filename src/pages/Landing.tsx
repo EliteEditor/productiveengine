@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,110 +20,92 @@ import {
   Star
 } from 'lucide-react';
 
+const features = [
+  {
+    icon: <CalendarCheck className="w-12 h-12 text-primary mb-4" />,
+    title: "Task Management",
+    description: "Organize and track your daily tasks with ease. Set priorities, deadlines, and categories."
+  },
+  {
+    icon: <Target className="w-12 h-12 text-primary mb-4" />,
+    title: "Goal Setting",
+    description: "Set and achieve your goals with milestone tracking and progress visualization."
+  },
+  {
+    icon: <BarChart2 className="w-12 h-12 text-primary mb-4" />,
+    title: "Productivity Analytics",
+    description: "Get detailed insights into your productivity patterns and task completion rates."
+  },
+  {
+    icon: <Bell className="w-12 h-12 text-primary mb-4" />,
+    title: "Smart Notifications",
+    description: "Stay on top of urgent tasks with intelligent notifications and reminders."
+  },
+  {
+    icon: <Clock className="w-12 h-12 text-primary mb-4" />,
+    title: "Time Management",
+    description: "Track time spent on tasks and optimize your daily schedule."
+  },
+  {
+    icon: <Shield className="w-12 h-12 text-primary mb-4" />,
+    title: "Secure & Private",
+    description: "Your data is encrypted and protected with industry-standard security measures."
+  }
+];
+
+const pricingPlans = [
+  {
+    name: "Free",
+    price: "$0",
+    period: "forever",
+    description: "Perfect for individuals getting started",
+    features: [
+      "Up to 10 tasks",
+      "Basic task management",
+      "Calendar view",
+      "Mobile app access"
+    ],
+    buttonText: "Get Started",
+    highlighted: false
+  },
+  {
+    name: "Pro",
+    price: "$12",
+    period: "per month",
+    description: "For professionals who need more",
+    features: [
+      "Unlimited tasks",
+      "Advanced analytics",
+      "Goal tracking",
+      "Team collaboration",
+      "Priority support"
+    ],
+    buttonText: "Try Pro Free",
+    highlighted: true
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "pricing",
+    description: "For large teams with advanced needs",
+    features: [
+      "Everything in Pro",
+      "Admin controls",
+      "Custom integrations",
+      "Dedicated account manager",
+      "Premium security features"
+    ],
+    buttonText: "Contact Sales",
+    highlighted: false
+  }
+];
+
 const Landing = () => {
   const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
     navigate('/');
   };
-
-  const features = [
-    {
-      icon: <CalendarCheck className="w-12 h-12 text-primary mb-4" />,
-      title: "Task Management",
-      description: "Organize and track your daily tasks with ease. Set priorities, deadlines, and categories."
-    },
-    {
-      icon: <Target className="w-12 h-12 text-primary mb-4" />,
-      title: "Goal Setting",
-      description: "Set and achieve your goals with milestone tracking and progress visualization."
-    },
-    {
-      icon: <BarChart2 className="w-12 h-12 text-primary mb-4" />,
-      title: "Productivity Analytics",
-      description: "Get detailed insights into your productivity patterns and task completion rates."
-    },
-    {
-      icon: <Bell className="w-12 h-12 text-primary mb-4" />,
-      title: "Smart Notifications",
-      description: "Stay on top of urgent tasks with intelligent notifications and reminders."
-    },
-    {
-      icon: <Clock className="w-12 h-12 text-primary mb-4" />,
-      title: "Time Management",
-      description: "Track time spent on tasks and optimize your daily schedule."
-    },
-    {
-      icon: <Shield className="w-12 h-12 text-primary mb-4" />,
-      title: "Secure & Private",
-      description: "Your data is encrypted and protected with industry-standard security measures."
-    }
-  ];
-
-  const testimonials = [
-    {
-      quote: "FlowPath has transformed how I manage my daily tasks. I'm 40% more productive since I started using it.",
-      author: "Sarah J.",
-      role: "Marketing Director"
-    },
-    {
-      quote: "The goal tracking feature has been a game-changer for our team. We've never been more organized.",
-      author: "David Chen",
-      role: "Project Manager"
-    },
-    {
-      quote: "I love how intuitive the interface is. Finally found a productivity app that doesn't get in my way.",
-      author: "Michelle K.",
-      role: "Freelance Designer"
-    }
-  ];
-
-  const pricingPlans = [
-    {
-      name: "Free",
-      price: "$0",
-      period: "forever",
-      description: "Perfect for individuals getting started",
-      features: [
-        "Up to 10 tasks",
-        "Basic task management",
-        "Calendar view",
-        "Mobile app access"
-      ],
-      buttonText: "Get Started",
-      highlighted: false
-    },
-    {
-      name: "Pro",
-      price: "$12",
-      period: "per month",
-      description: "For professionals who need more",
-      features: [
-        "Unlimited tasks",
-        "Advanced analytics",
-        "Goal tracking",
-        "Team collaboration",
-        "Priority support"
-      ],
-      buttonText: "Try Pro Free",
-      highlighted: true
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "pricing",
-      description: "For large teams with advanced needs",
-      features: [
-        "Everything in Pro",
-        "Admin controls",
-        "Custom integrations",
-        "Dedicated account manager",
-        "Premium security features"
-      ],
-      buttonText: "Contact Sales",
-      highlighted: false
-    }
-  ];
 
   return (
     <div className="bg-white dark:bg-gray-950 w-full overflow-x-hidden">
@@ -321,8 +302,8 @@ const Landing = () => {
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-primary rounded-xl blur-lg opacity-50"></div>
               <div className="relative rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
                 <img 
-                  src="/lovable-uploads/f045fe8f-f678-4135-8664-577b1c556930.png" 
-                  alt="FlowPath Dashboard" 
+                  src="/lovable-uploads/7a70b9c1-412e-4fb0-b190-c696c7cbea7c.png" 
+                  alt="FlowPath Dashboard Preview" 
                   className="w-full rounded-lg"
                 />
               </div>
@@ -337,34 +318,6 @@ const Landing = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 mb-3 text-xs font-semibold bg-primary/10 text-primary rounded-full uppercase tracking-wider">Testimonials</span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">What our users say</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">Thousands of professionals trust FlowPath to organize their lives and boost productivity.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {testimonials.map((item, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <div className="flex mb-6">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <Star key={star} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-8">&ldquo;{item.quote}&rdquo;</p>
-                <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{item.author}</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">{item.role}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
