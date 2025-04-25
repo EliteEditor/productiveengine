@@ -52,9 +52,13 @@ const Sidebar = () => {
       {/* Mobile Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4 z-30">
-          <div className="flex items-center">
-            <Workflow className="h-6 w-6 text-primary" />
-            <span className="ml-2 text-lg font-semibold text-primary">FlowPath</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center bg-[#E94444] rounded-[12px] w-10 h-10 p-1">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L18.5 6.5V14.5L12 18L5.5 14.5V6.5L12 3Z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="text-lg font-semibold text-primary animate-fade-in">FlowPath</span>
           </div>
           <button
             onClick={() => setCollapsed(!collapsed)}
