@@ -1,7 +1,16 @@
-
 import { useEffect, useState } from 'react';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { useGoalContext } from '@/contexts/GoalContext';
+
+interface Task {
+  id: string;
+  title: string;
+  status: 'completed' | 'pending';
+  due_date: string | null;
+  category?: string;
+  description?: string;
+  priority?: string;
+}
 
 interface ProductivityStats {
   completedTasks: number;
@@ -36,13 +45,20 @@ export const useProductivityStats = (): ProductivityStats => {
     const totalTasks = tasks.length;
     const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     
-    // Get today's date in a format that matches our stored dates
-    const today = new Date().toLocaleDateString('en-US');
+    // Get today's date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
     
     // Count today's tasks
     const todayTasks = tasks.filter(task => {
-      const dueDate = task.dueDate?.toLowerCase();
-      return dueDate?.includes('today') || dueDate?.includes(today);
+      if (!task.due_date) return false;
+      
+      // Parse the due date
+      const dueDate = new Date(task.due_date);
+      dueDate.setHours(0, 0, 0, 0); // Start of due date
+      
+      // Check if the due date is today
+      return dueDate.getTime() === today.getTime();
     });
     
     const tasksToday = todayTasks.length;
@@ -71,39 +87,45 @@ export const useProductivityStats = (): ProductivityStats => {
 };
 
 // Helper function to generate daily data for the chart
-const generateDailyData = (tasks: any[]) => {
-  // Generate dates for the last 7 days
+const generateDailyData = (tasks: Task[]) => {
+  // Get current date and find the most recent Monday
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+  const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Adjust to make Monday the start
+  
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysFromMonday);
+  monday.setHours(0, 0, 0, 0);
+
+  // Generate dates for the week starting from Monday
   const dates = [];
   const tasksByDate: Record<string, { completed: number, total: number }> = {};
   
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    date.setHours(0, 0, 0, 0);
+    
     const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' });
     dates.push(dateStr);
     
     // Initialize counts for this date
     tasksByDate[dateStr] = { completed: 0, total: 0 };
     
-    // Try to count actual tasks for this date
-    const dateFormatted = date.toLocaleDateString('en-US');
+    // Count tasks for this date
     tasks.forEach(task => {
-      const taskDate = task.dueDate?.toLowerCase();
-      if (taskDate?.includes(dateFormatted)) {
+      if (!task.due_date) return;
+      
+      const taskDate = new Date(task.due_date);
+      taskDate.setHours(0, 0, 0, 0);
+      
+      if (taskDate.getTime() === date.getTime()) {
         tasksByDate[dateStr].total++;
         if (task.status === 'completed') {
           tasksByDate[dateStr].completed++;
         }
       }
     });
-    
-    // If no tasks were found for this date, use some realistic random data
-    if (tasksByDate[dateStr].total === 0) {
-      tasksByDate[dateStr] = {
-        completed: Math.floor(Math.random() * 5),
-        total: Math.floor(Math.random() * 5) + 5
-      };
-    }
   }
   
   // Convert to array format

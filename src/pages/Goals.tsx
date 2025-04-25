@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2, Flag } from 'lucide-react';
+import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2, Flag, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Goals = () => {
-  const { goals, addGoal, deleteGoal, toggleMilestone } = useGoalContext();
+  const { goals, addGoal, deleteGoal, toggleMilestone, updateGoal, addSubMilestone, toggleSubMilestone } = useGoalContext();
   const { categories, addCategory } = useTaskContext();
   const isMobile = useIsMobile();
   
@@ -39,6 +38,15 @@ const Goals = () => {
   const [goalCategory, setGoalCategory] = useState(categories[0]?.id || 'work');
   const [goalPriority, setGoalPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
   const [milestones, setMilestones] = useState<{ title: string }[]>([{ title: '' }]);
+  
+  // State for editing goal
+  const [isEditGoalOpen, setIsEditGoalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  
+  // State for adding sub-milestone
+  const [isAddSubMilestoneOpen, setIsAddSubMilestoneOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<{ goalId: string; milestoneId: string } | null>(null);
+  const [subMilestoneTitle, setSubMilestoneTitle] = useState('');
   
   // State for add category dialog
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
@@ -103,17 +111,6 @@ const Goals = () => {
       return;
     }
 
-    // Use date from date picker if available, otherwise use text input
-    let deadline = goalDeadline;
-    if (deadlineDate) {
-      deadline = format(deadlineDate, 'MMMM d, yyyy');
-    }
-
-    if (deadline.trim() === '') {
-      toast.error('Please set a deadline');
-      return;
-    }
-
     // Filter out empty milestones
     const validMilestones = milestones
       .filter(m => m.title.trim() !== '')
@@ -128,9 +125,15 @@ const Goals = () => {
       return;
     }
 
+    // Use date from date picker if available, otherwise use text input
+    let deadline = goalDeadline;
+    if (deadlineDate) {
+      deadline = format(deadlineDate, 'MMMM d, yyyy');
+    }
+
     addGoal({
       title: goalTitle,
-      deadline: deadline,
+      ...(deadline.trim() !== '' && { deadline }), // Only include deadline if it's not empty
       progress: 0,
       milestones: validMilestones,
       category: goalCategory,
@@ -163,6 +166,94 @@ const Goals = () => {
     setCategoryName('');
     setCategoryColor('#3b82f6');
     setIsAddCategoryOpen(false);
+  };
+
+  // Handle editing goal
+  const handleEditGoal = () => {
+    if (!editingGoal) return;
+    
+    if (goalTitle.trim() === '') {
+      toast.error('Goal title cannot be empty');
+      return;
+    }
+
+    // Filter out empty milestones and preserve existing sub-milestones
+    const validMilestones = milestones
+      .filter(m => m.title.trim() !== '')
+      .map((m, index) => {
+        // Find the corresponding original milestone to get its sub-milestones
+        const originalMilestone = editingGoal.milestones.find(
+          origM => origM.title === m.title
+        );
+        
+        return {
+          id: originalMilestone?.id || `m${index + 1}`,
+          title: m.title,
+          completed: originalMilestone?.completed || false,
+          subMilestones: originalMilestone?.subMilestones || []
+        };
+      });
+
+    if (validMilestones.length === 0) {
+      toast.error('Add at least one milestone');
+      return;
+    }
+
+    // Use date from date picker if available, otherwise use text input
+    let deadline = goalDeadline;
+    if (deadlineDate) {
+      deadline = format(deadlineDate, 'MMMM d, yyyy');
+    }
+
+    updateGoal(editingGoal.id, {
+      title: goalTitle,
+      ...(deadline.trim() !== '' && { deadline }), // Only include deadline if it's not empty
+      milestones: validMilestones,
+      category: goalCategory,
+      priority: goalPriority !== 'none' ? goalPriority : undefined
+    });
+
+    // Reset form and close dialog
+    setGoalTitle('');
+    setGoalDeadline('');
+    setDeadlineDate(undefined);
+    setGoalCategory(categories[0]?.id || 'work');
+    setGoalPriority('none');
+    setMilestones([{ title: '' }]);
+    setIsEditGoalOpen(false);
+    setEditingGoal(null);
+  };
+
+  // Handle adding sub-milestone
+  const handleAddSubMilestone = () => {
+    if (!selectedMilestone) return;
+    
+    if (subMilestoneTitle.trim() === '') {
+      toast.error('Sub-milestone title cannot be empty');
+      return;
+    }
+
+    addSubMilestone(selectedMilestone.goalId, selectedMilestone.milestoneId, {
+      title: subMilestoneTitle,
+      completed: false
+    });
+
+    // Reset form and close dialog
+    setSubMilestoneTitle('');
+    setIsAddSubMilestoneOpen(false);
+    setSelectedMilestone(null);
+  };
+
+  // Function to open edit goal dialog
+  const openEditGoal = (goal: Goal) => {
+    setEditingGoal(goal);
+    setGoalTitle(goal.title);
+    setGoalDeadline(goal.deadline || '');
+    setDeadlineDate(goal.deadline ? new Date(goal.deadline) : undefined);
+    setGoalCategory(goal.category || categories[0]?.id || 'work');
+    setGoalPriority(goal.priority || 'none');
+    setMilestones(goal.milestones.map(m => ({ title: m.title })));
+    setIsEditGoalOpen(true);
   };
 
   return (
@@ -276,6 +367,15 @@ const Goals = () => {
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-8 w-8 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
+                          onClick={() => openEditGoal(goal)}
+                          title="Edit goal"
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0"
                           onClick={() => deleteGoal(goal.id)}
                           title="Delete goal"
@@ -297,23 +397,63 @@ const Goals = () => {
                       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Milestones</h4>
                       <div className="space-y-2">
                         {goal.milestones.map((milestone) => (
-                          <div key={milestone.id} className="flex items-start">
-                            <Checkbox 
-                              id={milestone.id} 
-                              className="mr-2 mt-0.5" 
-                              checked={milestone.completed}
-                              onCheckedChange={() => toggleMilestone(goal.id, milestone.id)} 
-                            />
-                            <label 
-                              htmlFor={milestone.id} 
-                              className={`text-sm break-words ${
-                                milestone.completed 
-                                  ? 'text-gray-500 dark:text-gray-500 line-through' 
-                                  : 'text-gray-700 dark:text-gray-300'
-                              }`}
-                            >
-                              {milestone.title}
-                            </label>
+                          <div key={milestone.id} className="space-y-2">
+                            <div className="flex items-start">
+                              <Checkbox 
+                                id={milestone.id} 
+                                className="mr-2 mt-0.5" 
+                                checked={milestone.completed}
+                                onCheckedChange={() => toggleMilestone(goal.id, milestone.id)} 
+                              />
+                              <label 
+                                htmlFor={milestone.id} 
+                                className={`text-sm break-words flex-grow ${
+                                  milestone.completed 
+                                    ? 'text-gray-500 dark:text-gray-500 line-through' 
+                                    : 'text-gray-700 dark:text-gray-300'
+                                }`}
+                              >
+                                {milestone.title}
+                              </label>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2 h-6 text-xs"
+                                onClick={() => {
+                                  setSelectedMilestone({ goalId: goal.id, milestoneId: milestone.id });
+                                  setIsAddSubMilestoneOpen(true);
+                                }}
+                              >
+                                <Plus size={12} className="mr-1" />
+                                Add Sub-milestone
+                              </Button>
+                            </div>
+                            
+                            {/* Sub-milestones */}
+                            {milestone.subMilestones && milestone.subMilestones.length > 0 && (
+                              <div className="ml-6 space-y-2">
+                                {milestone.subMilestones.map((subMilestone) => (
+                                  <div key={subMilestone.id} className="flex items-start">
+                                    <Checkbox 
+                                      id={subMilestone.id} 
+                                      className="mr-2 mt-0.5" 
+                                      checked={subMilestone.completed}
+                                      onCheckedChange={() => toggleSubMilestone(goal.id, milestone.id, subMilestone.id)} 
+                                    />
+                                    <label 
+                                      htmlFor={subMilestone.id} 
+                                      className={`text-sm break-words ${
+                                        subMilestone.completed 
+                                          ? 'text-gray-500 dark:text-gray-500 line-through' 
+                                          : 'text-gray-700 dark:text-gray-300'
+                                      }`}
+                                    >
+                                      {subMilestone.title}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -484,6 +624,150 @@ const Goals = () => {
         </DialogContent>
       </Dialog>
       
+      {/* Edit Goal Dialog */}
+      <Dialog open={isEditGoalOpen} onOpenChange={setIsEditGoalOpen}>
+        <DialogContent className="sm:max-w-[500px] dark:bg-gray-800 dark:border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="dark:text-gray-100">Edit Goal</DialogTitle>
+            <DialogDescription className="dark:text-gray-300">Modify your goal and its milestones</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
+              <Input 
+                id="goal-title" 
+                value={goalTitle} 
+                onChange={(e) => setGoalTitle(e.target.value)} 
+                placeholder="Enter goal title" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
+                <div className="flex flex-col gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+                          !deadlineDate && "text-muted-foreground dark:text-gray-400"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={deadlineDate}
+                        onSelect={setDeadlineDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Or manually enter:</span>
+                  </div>
+                  
+                  <Input 
+                    id="goal-deadline" 
+                    value={goalDeadline} 
+                    onChange={(e) => setGoalDeadline(e.target.value)} 
+                    placeholder="e.g., June 30, 2023" 
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
+                <Select value={goalCategory} onValueChange={setGoalCategory}>
+                  <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center">
+                          <span 
+                            className="w-2 h-2 rounded-full mr-2"
+                            style={{ backgroundColor: category.color }}
+                          ></span>
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
+              <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
+                <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label className="dark:text-gray-200">Milestones</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={addMilestoneField}
+                  className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
+                >
+                  <Plus size={12} className="mr-1" />
+                  Add Milestone
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {milestones.map((milestone, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input 
+                      value={milestone.title}
+                      onChange={(e) => updateMilestoneTitle(index, e.target.value)}
+                      placeholder={`Milestone ${index + 1}`}
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    />
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => removeMilestoneField(index)}
+                      disabled={milestones.length === 1}
+                      className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      <Target size={14} className="rotate-45" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditGoalOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
+            <Button onClick={handleEditGoal}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       {/* Add Category Dialog */}
       <Dialog open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen}>
         <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 dark:border-gray-700">
@@ -543,6 +827,32 @@ const Goals = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddCategoryOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
             <Button onClick={handleAddCategory}>Add Category</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Sub-milestone Dialog */}
+      <Dialog open={isAddSubMilestoneOpen} onOpenChange={setIsAddSubMilestoneOpen}>
+        <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 dark:border-gray-700">
+          <DialogHeader>
+            <DialogTitle className="dark:text-gray-100">Add Sub-milestone</DialogTitle>
+            <DialogDescription className="dark:text-gray-300">Create a sub-milestone for better task breakdown</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="sub-milestone-title" className="dark:text-gray-200">Sub-milestone Title</Label>
+              <Input 
+                id="sub-milestone-title" 
+                value={subMilestoneTitle} 
+                onChange={(e) => setSubMilestoneTitle(e.target.value)} 
+                placeholder="Enter sub-milestone title" 
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddSubMilestoneOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
+            <Button onClick={handleAddSubMilestone}>Add Sub-milestone</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

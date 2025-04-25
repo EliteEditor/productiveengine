@@ -15,16 +15,35 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   
   // Get today's tasks
-  const todayTasks = tasks.filter(task => {
-    const dueDate = task.dueDate?.toLowerCase();
-    return dueDate?.includes('today');
-  });
+  const getTodayTasks = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
 
-  // Get long-term tasks (not due today)
-  const longTermTasks = tasks.filter(task => {
-    const dueDate = task.dueDate?.toLowerCase();
-    return !dueDate?.includes('today');
-  });
+    return tasks.filter(task => {
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      return dueDate && dueDate >= today && dueDate < tomorrow;
+    });
+  };
+
+  // Get long-term tasks
+  const getLongTermTasks = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
+
+    return tasks.filter(task => {
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      return dueDate && dueDate >= tomorrow;
+    });
+  };
+
+  const todayTasks = getTodayTasks();
+  const longTermTasks = getLongTermTasks();
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);

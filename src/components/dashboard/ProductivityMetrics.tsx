@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CalendarCheck, Target, Activity } from 'lucide-react';
 import StatCard from '../ui/StatCard';
@@ -14,11 +13,20 @@ const ProductivityMetrics = () => {
   const { weeklyCompletionRate } = useWeeklyPerformance();
   
   // Calculate today's tasks completion rate
-  const todayTasks = tasks.filter(task => {
-    const dueDate = task.dueDate?.toLowerCase();
-    return dueDate?.includes('today');
-  });
-  
+  const getTodayTasks = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
+
+    return tasks.filter(task => {
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      return dueDate && dueDate >= today && dueDate < tomorrow;
+    });
+  };
+
+  const todayTasks = getTodayTasks();
   const completedTodayTasks = todayTasks.filter(task => task.status === 'completed').length;
   const totalTodayTasks = todayTasks.length;
   const todayTasksRatio = `${completedTodayTasks}/${totalTodayTasks}`;
@@ -30,17 +38,17 @@ const ProductivityMetrics = () => {
   
   // Calculate trends
   const taskTrend = { 
-    value: 4, 
+    value: Math.round((completedTodayTasks / Math.max(totalTodayTasks, 1)) * 100), 
     isPositive: completedTodayTasks > 0
   };
   
   const goalTrend = {
-    value: 2,
+    value: goalProgress,
     isPositive: goalProgress > 50
   };
   
   const weeklyTrend = {
-    value: 5,
+    value: weeklyCompletionRate,
     isPositive: weeklyCompletionRate > 50
   };
 

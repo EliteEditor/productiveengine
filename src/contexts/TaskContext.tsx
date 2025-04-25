@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 // Task status types
 export type TaskStatus = 'pending' | 'completed';
@@ -10,12 +11,15 @@ export type TaskCategory = 'work' | 'personal' | 'urgent' | 'learning' | string;
 // Task interface
 export interface Task {
   id: string;
+  user_id: string;
   title: string;
   status: TaskStatus;
   category: TaskCategory;
-  dueDate?: string;
+  due_date?: string;
   description?: string;
   priority?: 'high' | 'medium' | 'low';
+  created_at: string;
+  updated_at: string;
 }
 
 // Category interface with color
@@ -27,7 +31,7 @@ export interface Category {
 
 interface TaskContextType {
   tasks: Task[];
-  addTask: (task: Omit<Task, 'id'>) => void;
+  addTask: (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
   updateTask: (id: string, task: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTaskStatus: (id: string) => void;
@@ -51,10 +55,7 @@ interface TaskProviderProps {
 }
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
-  // Initialize with empty tasks array instead of sample tasks
   const [tasks, setTasks] = useState<Task[]>([]);
-  
-  // Initialize with default categories
   const [categories, setCategories] = useState<Category[]>([
     { id: 'work', name: 'Work', color: '#3b82f6' },
     { id: 'personal', name: 'Personal', color: '#10b981' },
@@ -62,39 +63,141 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     { id: 'learning', name: 'Learning', color: '#8b5cf6' },
   ]);
 
-  // Add a new task
-  const addTask = (task: Omit<Task, 'id'>) => {
-    const newTask: Task = {
-      ...task,
-      id: Date.now().toString(),
+  // Load user's tasks when component mounts
+  useEffect(() => {
+    const loadUserTasks = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: userTasks, error } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          setTasks(userTasks || []);
+        }
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+        toast.error('Failed to load tasks');
+      }
     };
-    setTasks(prevTasks => [newTask, ...prevTasks]);
-    toast.success(`Task "${task.title}" added successfully!`);
+
+    loadUserTasks();
+  }, []);
+
+  // Add a new task
+  const addTask = async (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please log in to add tasks');
+        return;
+      }
+
+      // Set today's date for new tasks if no due_date is provided
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Set to end of today
+
+      // Ensure the task has all required fields and correct format
+      const newTask = {
+        title: task.title,
+        status: task.status || 'pending',
+        category: task.category,
+        description: task.description || null,
+        due_date: task.due_date ? new Date(task.due_date).toISOString() : today.toISOString(), // Default to today
+        priority: task.priority || null,
+        user_id: user.id
+      };
+
+      console.log('Attempting to add task:', newTask);
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([newTask])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+
+      if (data) {
+        setTasks(prevTasks => [data, ...prevTasks]);
+        toast.success(`Task "${task.title}" added successfully!`);
+      }
+    } catch (error: any) {
+      console.error('Error adding task:', error.message, error);
+      toast.error(`Failed to add task: ${error.message}`);
+    }
   };
 
   // Update an existing task
-  const updateTask = (id: string, updatedTask: Partial<Task>) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, ...updatedTask } : task
-      )
-    );
-    toast.success('Task updated successfully!');
+  const updateTask = async (id: string, updatedTask: Partial<Task>) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update(updatedTask)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === id ? { ...task, ...updatedTask } : task
+        )
+      );
+      toast.success('Task updated successfully!');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast.error('Failed to update task');
+    }
   };
 
   // Delete a task
-  const deleteTask = (id: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-    toast.success('Task deleted successfully!');
+  const deleteTask = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+      toast.success('Task deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error('Failed to delete task');
+    }
   };
 
   // Toggle task completion status
-  const toggleTaskStatus = (id: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, status: task.status === 'completed' ? 'pending' : 'completed' } : task
-      )
-    );
+  const toggleTaskStatus = async (id: string) => {
+    try {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === id ? { ...task, status: newStatus } : task
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling task status:', error);
+      toast.error('Failed to update task status');
+    }
   };
 
   // Add a new category

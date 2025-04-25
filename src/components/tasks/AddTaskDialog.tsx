@@ -32,24 +32,22 @@ const AddTaskDialog = ({ open, onOpenChange, taskType = 'today' }: AddTaskDialog
       return;
     }
 
-    // Format the due date
-    let dueDateString: string | undefined = taskType === 'today' ? 'Today' : undefined;
-    
-    if (taskType === 'longterm') {
+    // Set the due date based on task type
+    let due_date: string;
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+
+    if (taskType === 'today') {
+      due_date = today.toISOString();
+    } else {
       if (useDatePicker && dueDate) {
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(today.getDate() + 1);
-        
-        if (dueDate.toDateString() === today.toDateString()) {
-          dueDateString = 'Today';
-        } else if (dueDate.toDateString() === tomorrow.toDateString()) {
-          dueDateString = 'Tomorrow';
-        } else {
-          dueDateString = format(dueDate, 'MMMM d, yyyy');
-        }
-      } else if (!useDatePicker && customDueDate) {
-        dueDateString = customDueDate;
+        // Set the time to end of the selected day
+        const selectedDate = new Date(dueDate);
+        selectedDate.setHours(23, 59, 59, 999);
+        due_date = selectedDate.toISOString();
+      } else {
+        // For custom date input, default to end of today
+        due_date = today.toISOString();
       }
     }
 
@@ -58,7 +56,7 @@ const AddTaskDialog = ({ open, onOpenChange, taskType = 'today' }: AddTaskDialog
       status: 'pending',
       category: taskCategory,
       description: taskDescription || undefined,
-      dueDate: dueDateString,
+      due_date,
       priority: taskPriority !== 'none' ? taskPriority : undefined
     });
     

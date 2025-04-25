@@ -17,20 +17,32 @@ const Tasks = () => {
   
   // Filter tasks based on due date and category
   const getTodayTasks = (categoryFilter: string | null = null) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
+
     return tasks.filter(task => {
-      const dueDate = task.dueDate?.toLowerCase();
-      const isToday = dueDate?.includes('today');
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      const isToday = dueDate && dueDate >= today && dueDate < tomorrow;
       const matchesCategory = !categoryFilter || task.category === categoryFilter;
       return isToday && matchesCategory;
     });
   };
 
   const getLongTermTasks = (categoryFilter: string | null = null) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Start of tomorrow
+
     return tasks.filter(task => {
-      const dueDate = task.dueDate?.toLowerCase();
-      const isNotToday = !dueDate?.includes('today');
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      const isLongTerm = dueDate && dueDate >= tomorrow;
       const matchesCategory = !categoryFilter || task.category === categoryFilter;
-      return isNotToday && matchesCategory;
+      return isLongTerm && matchesCategory;
     });
   };
 

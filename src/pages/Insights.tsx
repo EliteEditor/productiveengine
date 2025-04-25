@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer } from '@/components/ui/chart';
 import { 
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
   Legend, ResponsiveContainer, PieChart, Pie, Cell, Area 
@@ -14,13 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const chartConfig = {
-  completed: { color: "#10b981" }, // emerald
-  pending: { color: "#6366f1" }, // indigo
-  goal: { color: "#8b5cf6" }, // violet
-  success: { color: "#10b981" }, // emerald
-  info: { color: "#3b82f6" }, // blue
-  warning: { color: "#f59e0b" }, // amber
-  danger: { color: "#ef4444" }, // red
+  score: { color: "#3b82f6" },
+  efficiency: { color: "#10b981" },
+  completed: { color: "#10b981" },
+  pending: { color: "#6366f1" },
+  progress: { color: "#8b5cf6" },
 };
 
 const Insights = () => {
@@ -154,57 +152,55 @@ const Insights = () => {
         
         {/* Chart Section - Mobile optimized */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Productivity Score Chart */}
+          {/* Weekly Task Progress Chart */}
           <Card className="bg-background border border-border">
             <CardHeader>
               <CardTitle className="text-lg font-medium flex items-center text-primary">
                 <Zap size={20} className="mr-2 text-primary" />
-                Productivity Score
+                Weekly Task Progress
               </CardTitle>
-              <CardDescription className="text-muted-foreground">Your daily productivity score</CardDescription>
+              <CardDescription className="text-muted-foreground">Your task completion over the week</CardDescription>
             </CardHeader>
-            <CardContent className="min-h-[400px] p-6 bg-background/95 rounded-lg">
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={[
-                    { day: 'Mon', score: 85, efficiency: 75 },
-                    { day: 'Tue', score: 92, efficiency: 80 },
-                    { day: 'Wed', score: 78, efficiency: 70 },
-                    { day: 'Thu', score: 95, efficiency: 85 },
-                    { day: 'Fri', score: 88, efficiency: 78 },
-                    { day: 'Sat', score: 72, efficiency: 65 },
-                    { day: 'Sun', score: 70, efficiency: 60 }
-                  ]}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
-                  <XAxis
-                    dataKey="day"
-                    stroke="#888888"
-                    tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
-                  />
-                  <YAxis
-                    stroke="#888888"
-                    tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
-                    width={isMobile ? 35 : 40}
-                    domain={[0, 100]}
-                    label={{ value: 'Score', angle: -90, position: 'insideLeft', fill: '#888888' }}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar 
-                    dataKey="score" 
-                    name="Productivity Score" 
-                    fill="#3b82f6"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar 
-                    dataKey="efficiency" 
-                    name="Efficiency" 
-                    fill="#10b981"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent className="min-h-[400px] p-6">
+              <div className="w-full h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={stats.dailyData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#888888"
+                      tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
+                    />
+                    <YAxis
+                      stroke="#888888"
+                      tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
+                      width={isMobile ? 35 : 40}
+                      domain={[0, 10]}
+                      ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+                      allowDecimals={false}
+                      label={{ 
+                        value: 'Tasks', 
+                        angle: -90, 
+                        position: 'insideLeft',
+                        style: { fill: '#888888' }
+                      }}
+                    />
+                    <Tooltip />
+                    <Line 
+                      type="monotone"
+                      dataKey="completed"
+                      name="Completed Tasks"
+                      stroke={chartConfig.completed.color}
+                      strokeWidth={2}
+                      dot={{ fill: chartConfig.completed.color }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
           
@@ -218,25 +214,27 @@ const Insights = () => {
               <CardDescription className="text-muted-foreground">Distribution of tasks across categories</CardDescription>
             </CardHeader>
             <CardContent className="min-h-[400px] p-6">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={tasksByCategoryData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={pieChartConfig.outerRadius}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={renderPieLabel}
-                    labelLine={pieChartConfig.labelLine}
-                  >
-                    {tasksByCategoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="w-full h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={tasksByCategoryData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={pieChartConfig.outerRadius}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderPieLabel}
+                      labelLine={pieChartConfig.labelLine}
+                    >
+                      {tasksByCategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -249,27 +247,33 @@ const Insights = () => {
                 <BarChartIcon size={20} className="mr-2 text-primary" />
                 Task Status
               </CardTitle>
-              <CardDescription className="text-muted-foreground">Distribution of task completion status</CardDescription>
+              <CardDescription className="text-muted-foreground">Distribution of tasks by status</CardDescription>
             </CardHeader>
             <CardContent className="min-h-[400px] p-6">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie
-                    data={taskStatusData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={pieChartConfig.outerRadius}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={renderPieLabel}
-                    labelLine={pieChartConfig.labelLine}
-                  >
-                    <Cell fill="#10b981" /> {/* Completed */}
-                    <Cell fill="#ef4444" /> {/* Pending */}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="w-full h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={taskStatusData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={pieChartConfig.outerRadius}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderPieLabel}
+                      labelLine={pieChartConfig.labelLine}
+                    >
+                      {taskStatusData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.name === 'Completed' ? chartConfig.completed.color : chartConfig.pending.color} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
           
@@ -282,31 +286,38 @@ const Insights = () => {
               </CardTitle>
               <CardDescription className="text-muted-foreground">Progress across your goals</CardDescription>
             </CardHeader>
-            <CardContent className="min-h-[400px] p-6">
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={goalProgressData}
-                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-                  layout="vertical"
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis 
-                    type="number" 
-                    domain={[0, 100]} 
-                    stroke="currentColor"
-                    tick={{ fill: 'currentColor', fontSize: isMobile ? 8 : 10 }}
-                  />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={isMobile ? 60 : 80}
-                    stroke="currentColor"
-                    tick={{ fill: 'currentColor', fontSize: isMobile ? 8 : 10 }}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="progress" name="Progress" fill={chartConfig.goal.color} />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent className="min-h-[250px] p-6">
+              <div className="w-full h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={goalProgressData}
+                    margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+                    layout="vertical"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" />
+                    <XAxis 
+                      type="number" 
+                      domain={[0, 100]} 
+                      stroke="#888888"
+                      tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
+                    />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={isMobile ? 60 : 80}
+                      stroke="#888888"
+                      tick={{ fill: '#888888', fontSize: isMobile ? 10 : 12 }}
+                    />
+                    <Tooltip />
+                    <Bar 
+                      dataKey="progress" 
+                      name="Progress" 
+                      fill={chartConfig.progress.color}
+                      barSize={20}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
