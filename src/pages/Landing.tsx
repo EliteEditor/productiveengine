@@ -131,7 +131,7 @@ const Landing = () => {
           <div className="flex items-center space-x-3">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" className="hidden sm:flex">Log in</Button>
+                <Button variant="ghost" className="flex">Log in</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px] p-0">
                 <Auth view="sign_in" onSuccess={handleLoginSuccess} />
