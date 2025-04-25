@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Auth } from '@/components/auth/Auth';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { CalendarCheck, Target, BarChart2, Bell, Clock, Shield } from 'lucide-react';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -13,8 +14,42 @@ const Landing = () => {
     navigate('/');
   };
 
+  const features = [
+    {
+      icon: <CalendarCheck className="w-12 h-12 text-primary mb-4" />,
+      title: "Task Management",
+      description: "Organize and track your daily tasks with ease. Set priorities, deadlines, and categories."
+    },
+    {
+      icon: <Target className="w-12 h-12 text-primary mb-4" />,
+      title: "Goal Setting",
+      description: "Set and achieve your goals with milestone tracking and progress visualization."
+    },
+    {
+      icon: <BarChart2 className="w-12 h-12 text-primary mb-4" />,
+      title: "Productivity Analytics",
+      description: "Get detailed insights into your productivity patterns and task completion rates."
+    },
+    {
+      icon: <Bell className="w-12 h-12 text-primary mb-4" />,
+      title: "Smart Notifications",
+      description: "Stay on top of urgent tasks with intelligent notifications and reminders."
+    },
+    {
+      icon: <Clock className="w-12 h-12 text-primary mb-4" />,
+      title: "Time Management",
+      description: "Track time spent on tasks and optimize your daily schedule."
+    },
+    {
+      icon: <Shield className="w-12 h-12 text-primary mb-4" />,
+      title: "Secure & Private",
+      description: "Your data is encrypted and protected with industry-standard security measures."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between mb-16">
           <div className="flex items-center space-x-2">
@@ -43,42 +78,79 @@ const Landing = () => {
           </div>
         </nav>
 
-        <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto mt-20">
+        <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto mt-20 mb-32">
           <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Stay Organized, <span className="text-primary">Achieve More</span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl">
             Transform your productivity with FlowPath's intuitive task management and goal tracking. Your journey to better organization starts here.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-3xl">
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Task Management</h3>
-              <p className="text-gray-600 dark:text-gray-300">Organize your tasks efficiently with our intuitive interface</p>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="lg" className="px-8 py-6 text-lg">
+                Get Started Free
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] p-0">
+              <Auth view="sign_up" onSuccess={handleLoginSuccess} />
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
+          {features.map((feature, index) => (
+            <div 
+              key={index}
+              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              {feature.icon}
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                {feature.title}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                {feature.description}
+              </p>
             </div>
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+          ))}
+        </div>
+
+        {/* App Preview Section */}
+        <div className="text-center mb-32">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+            Your Productivity Dashboard
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
+            Get a clear overview of your tasks, goals, and progress all in one place.
+          </p>
+          <div className="relative rounded-lg overflow-hidden shadow-xl">
+            <div className="aspect-w-16 aspect-h-9 bg-gray-100 dark:bg-gray-800">
+              {/* You can add a screenshot or demo of your app here */}
+              <div className="p-8 flex items-center justify-center">
+                <span className="text-gray-500 dark:text-gray-400">App Preview</span>
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Goal Tracking</h3>
-              <p className="text-gray-600 dark:text-gray-300">Set and achieve your goals with progress tracking</p>
-            </div>
-            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Insights</h3>
-              <p className="text-gray-600 dark:text-gray-300">Gain valuable insights into your productivity patterns</p>
             </div>
           </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+            Ready to Boost Your Productivity?
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            Join thousands of users who have transformed their workflow with FlowPath.
+          </p>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="lg" className="px-8 py-6 text-lg">
+                Start Your Journey
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] p-0">
+              <Auth view="sign_up" onSuccess={handleLoginSuccess} />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

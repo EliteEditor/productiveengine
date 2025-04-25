@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { toast } from 'sonner';
 
@@ -44,50 +43,8 @@ interface GoalProviderProps {
 }
 
 export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
-  // Initialize with sample goals
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      title: 'Complete project proposal',
-      deadline: 'May 20, 2023',
-      progress: 75,
-      milestones: [
-        { id: 'm1', title: 'Research competitors', completed: true },
-        { id: 'm2', title: 'Create outline', completed: true },
-        { id: 'm3', title: 'Draft proposal', completed: true },
-        { id: 'm4', title: 'Final review', completed: false }
-      ],
-      category: 'work',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Learn new programming language',
-      deadline: 'August 15, 2023',
-      progress: 30,
-      milestones: [
-        { id: 'm1', title: 'Complete basic syntax', completed: true },
-        { id: 'm2', title: 'Build simple application', completed: false },
-        { id: 'm3', title: 'Complete online course', completed: false }
-      ],
-      category: 'learning',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      title: 'Improve productivity habits',
-      deadline: 'Ongoing',
-      progress: 50,
-      milestones: [
-        { id: 'm1', title: 'Morning routine optimization', completed: true },
-        { id: 'm2', title: 'Time-blocking implementation', completed: true },
-        { id: 'm3', title: 'Digital detox weekends', completed: false },
-        { id: 'm4', title: 'Weekly review process', completed: false }
-      ],
-      category: 'personal',
-      priority: 'low'
-    }
-  ]);
+  // Initialize with empty goals array
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   // Add a new goal
   const addGoal = (goal: Omit<Goal, 'id'>) => {
