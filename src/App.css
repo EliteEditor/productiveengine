@@ -1,3 +1,4 @@
+
 #root {
   min-height: 100vh;
   width: 100%;
@@ -47,6 +48,30 @@
 
 .dark .card-shadow {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+}
+
+/* Gradient border */
+.gradient-border {
+  position: relative;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: -1px;
+  border-radius: inherit;
+  background: linear-gradient(60deg, rgba(59,130,246,0.3), rgba(236,72,153,0.3));
+  z-index: -1;
+}
+
+.dark .gradient-border::before {
+  background: linear-gradient(60deg, rgba(59,130,246,0.4), rgba(236,72,153,0.4));
 }
 
 .logo {

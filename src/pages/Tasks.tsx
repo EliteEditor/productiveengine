@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { ListPlus, Filter, Tag, Calendar as CalendarIcon, Plus } from 'lucide-react';
@@ -62,7 +63,7 @@ const Tasks = () => {
           </div>
         </div>
         
-        <div className="glass rounded-lg p-3 card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700">
+        <div className="rounded-lg p-3 card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700 gradient-border">
           <div className="mb-3 flex flex-wrap gap-1.5 items-center">
             <span 
               className={`px-2 py-0.5 text-xs font-medium rounded-full cursor-pointer ${

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CheckCircle2, Circle, Clock, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -140,7 +141,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
   };
 
   return (
-    <div className={cn("glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700", className)}>
+    <div className={cn("rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700 gradient-border", className)}>
       <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Tasks</h2>
         <a href="/tasks" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">

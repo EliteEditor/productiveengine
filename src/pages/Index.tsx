@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import ProductivityMetrics from '@/components/dashboard/ProductivityMetrics';
 import TaskSummary from '@/components/dashboard/TaskSummary';
@@ -19,6 +20,19 @@ import { cn } from '@/lib/utils';
 const Index = () => {
   const { goals } = useGoalContext();
   const { tasks, addTask, toggleTaskStatus, categories } = useTaskContext();
+  const [greeting, setGreeting] = useState('Hello');
+  
+  // Get greeting based on time of day
+  useEffect(() => {
+    const getCurrentGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour < 12) return 'Good Morning';
+      if (hour < 18) return 'Good Afternoon';
+      return 'Good Evening';
+    };
+    
+    setGreeting(getCurrentGreeting());
+  }, []);
   
   // State for add task dialog
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -64,9 +78,12 @@ const Index = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="grid gap-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">Your Productivity Dashboard</h1>
-            <Button onClick={() => setIsAddTaskOpen(true)}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-gray-800 dark:text-gray-100 mb-1">{greeting}!</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Welcome to your productivity dashboard</p>
+            </div>
+            <Button onClick={() => setIsAddTaskOpen(true)} className="mt-3 sm:mt-0">
               <Plus className="mr-2 h-4 w-4" /> Add Task
             </Button>
           </div>
@@ -78,7 +95,7 @@ const Index = () => {
             <TaskSummary />
 
             {/* Goal Progress */}
-            <div className="glass rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700">
+            <div className="rounded-xl overflow-hidden card-shadow animate-scale-in dark:bg-gray-800/50 dark:border-gray-700 gradient-border">
               <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                 <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100">Goal Progress</h2>
                 <a href="/goals" className="text-sm text-primary font-medium hover:text-primary/80 transition-colors">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CalendarCheck, Target, Activity } from 'lucide-react';
 import StatCard from '../ui/StatCard';
@@ -59,7 +60,7 @@ const ProductivityMetrics = () => {
         value={todayTasksRatio}
         icon={<CalendarCheck size={18} className="dark:text-blue-300" />}
         trend={taskTrend}
-        className="animate-delay-200"
+        className="animate-delay-200 gradient-border"
       />
       
       <StatCard
@@ -67,7 +68,7 @@ const ProductivityMetrics = () => {
         value={`${goalProgress}%`}
         icon={<Target size={18} className="dark:text-blue-300" />}
         trend={goalTrend}
-        className="animate-delay-300"
+        className="animate-delay-300 gradient-border"
       />
       
       <StatCard
@@ -75,7 +76,7 @@ const ProductivityMetrics = () => {
         value={`${weeklyCompletionRate}%`}
         icon={<Activity size={18} className="dark:text-blue-300" />}
         trend={weeklyTrend}
-        className="animate-delay-400"
+        className="animate-delay-400 gradient-border"
       />
     </div>
   );
