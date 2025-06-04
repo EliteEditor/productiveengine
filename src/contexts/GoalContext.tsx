@@ -62,7 +62,12 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          setGoals(userGoals || []);
+          // Type cast the data to match our interface
+          const typedGoals = (userGoals || []).map(goal => ({
+            ...goal,
+            milestones: Array.isArray(goal.milestones) ? goal.milestones as Milestone[] : []
+          }));
+          setGoals(typedGoals);
         } else {
           setGoals([]); // Clear goals if no user
         }
@@ -96,7 +101,12 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
       if (!user) throw new Error('No user logged in');
 
       const newGoal = {
-        ...goal,
+        title: goal.title,
+        deadline: goal.deadline || null,
+        progress: goal.progress || 0,
+        milestones: goal.milestones || [],
+        category: goal.category || null,
+        priority: goal.priority || null,
         user_id: user.id,
         created_at: new Date().toISOString(),
       };
@@ -109,7 +119,12 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
 
       if (error) throw error;
 
-      setGoals(prevGoals => [...prevGoals, data]);
+      // Type cast the returned data
+      const typedGoal: Goal = {
+        ...data,
+        milestones: Array.isArray(data.milestones) ? data.milestones as Milestone[] : []
+      };
+      setGoals(prevGoals => [...prevGoals, typedGoal]);
       toast.success(`Goal "${goal.title}" added successfully!`);
     } catch (error) {
       console.error('Error adding goal:', error);
@@ -120,9 +135,14 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
   // Update an existing goal
   const updateGoal = async (id: string, updatedGoal: Partial<Goal>) => {
     try {
+      const updateData = {
+        ...updatedGoal,
+        milestones: updatedGoal.milestones || undefined
+      };
+
       const { error } = await supabase
         .from('goals')
-        .update(updatedGoal)
+        .update(updateData)
         .eq('id', id);
 
       if (error) throw error;

@@ -1,16 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useTaskContext } from '@/contexts/TaskContext';
-import { useGoalContext } from '@/contexts/GoalContext';
 
-interface Task {
-  id: string;
-  title: string;
-  status: 'completed' | 'pending';
-  due_date: string | null;
-  category?: string;
-  description?: string;
-  priority?: string;
-}
+import { useEffect, useState } from 'react';
+import { useTaskContext, Task as ContextTask } from '@/contexts/TaskContext';
+import { useGoalContext } from '@/contexts/GoalContext';
 
 interface ProductivityStats {
   completedTasks: number;
@@ -87,7 +78,7 @@ export const useProductivityStats = (): ProductivityStats => {
 };
 
 // Helper function to generate daily data for the chart
-const generateDailyData = (tasks: Task[]) => {
+const generateDailyData = (tasks: ContextTask[]) => {
   // Get current date and find the most recent Monday
   const today = new Date();
   const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday, etc.

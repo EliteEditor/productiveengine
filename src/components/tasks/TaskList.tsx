@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Trash2, Tag, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,10 +55,10 @@ const TaskList = ({ tasks }: TaskListProps) => {
               )}
               
               <div className="flex flex-wrap gap-1.5 mt-1">
-                {task.dueDate && (
+                {task.due_date && (
                   <span className="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
                     <CalendarIcon size={10} className="mr-1" />
-                    {task.dueDate}
+                    {new Date(task.due_date).toLocaleDateString()}
                   </span>
                 )}
                 

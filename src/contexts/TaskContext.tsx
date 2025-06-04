@@ -76,7 +76,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          setTasks(userTasks || []);
+          // Type cast the data to match our interface
+          const typedTasks = (userTasks || []).map(task => ({
+            ...task,
+            status: task.status as TaskStatus,
+            category: task.category as TaskCategory
+          }));
+          setTasks(typedTasks);
         } else {
           setTasks([]); // Clear tasks if no user
         }
@@ -141,7 +147,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       }
 
       if (data) {
-        setTasks(prevTasks => [data, ...prevTasks]);
+        // Type cast the returned data
+        const typedTask: Task = {
+          ...data,
+          status: data.status as TaskStatus,
+          category: data.category as TaskCategory
+        };
+        setTasks(prevTasks => [typedTask, ...prevTasks]);
         toast.success(`Task "${task.title}" added successfully!`);
       }
     } catch (error: any) {

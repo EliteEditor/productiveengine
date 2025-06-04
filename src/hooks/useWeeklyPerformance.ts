@@ -13,12 +13,9 @@ export const useWeeklyPerformance = () => {
     
     // Calculate task completion rate
     const weeklyTasks = tasks.filter(task => {
-      if (!task.dueDate) return false;
-      const dueDate = task.dueDate.toLowerCase();
-      return dueDate.includes('today') || 
-             dueDate.includes('tomorrow') || 
-             dueDate.includes(today.toLocaleDateString()) ||
-             dueDate.includes(lastWeek.toLocaleDateString());
+      if (!task.due_date) return false;
+      const dueDate = new Date(task.due_date);
+      return dueDate >= lastWeek && dueDate <= today;
     });
     
     const completedTasks = weeklyTasks.filter(task => task.status === 'completed').length;

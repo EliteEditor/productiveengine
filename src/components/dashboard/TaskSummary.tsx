@@ -115,10 +115,12 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ className }) => {
               {task.title}
             </p>
             
-            {task.dueDate && (
+            {task.due_date && (
               <div className="flex items-center mt-1">
                 <Clock size={12} className="text-gray-400 dark:text-gray-500 mr-1 flex-shrink-0" />
-                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{task.dueDate}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {new Date(task.due_date).toLocaleDateString()}
+                </span>
               </div>
             )}
           </div>
