@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,6 +30,7 @@ interface GoalContextType {
   calculateProgress: (goalId: string) => void;
   addSubMilestone: (goalId: string, parentMilestoneId: string, subMilestone: Omit<Milestone, 'id'>) => void;
   toggleSubMilestone: (goalId: string, parentMilestoneId: string, subMilestoneId: string) => void;
+  deleteSubMilestone: (goalId: string, parentMilestoneId: string, subMilestoneId: string) => void;
 }
 
 const GoalContext = createContext<GoalContextType | undefined>(undefined);
@@ -346,6 +346,60 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
     }
   };
 
+  // Delete a sub-milestone
+  const deleteSubMilestone = async (goalId: string, parentMilestoneId: string, subMilestoneId: string) => {
+    try {
+      const goal = goals.find(g => g.id === goalId);
+      if (!goal) return;
+
+      const updatedMilestones = goal.milestones.map(milestone => {
+        if (milestone.id === parentMilestoneId && milestone.subMilestones) {
+          return {
+            ...milestone,
+            subMilestones: milestone.subMilestones.filter(sub => sub.id !== subMilestoneId),
+          };
+        }
+        return milestone;
+      });
+
+      // Calculate progress after deletion
+      const totalMilestones = updatedMilestones.reduce((acc, m) => {
+        const subMilestonesCount = m.subMilestones?.length || 0;
+        return acc + 1 + subMilestonesCount;
+      }, 0);
+
+      const completedMilestones = updatedMilestones.reduce((acc, m) => {
+        const completedSubMilestones = m.subMilestones?.filter(sub => sub.completed).length || 0;
+        return acc + (m.completed ? 1 : 0) + completedSubMilestones;
+      }, 0);
+
+      const progress = totalMilestones > 0
+        ? Math.round((completedMilestones / totalMilestones) * 100)
+        : 0;
+
+      const { error } = await supabase
+        .from('goals')
+        .update({ 
+          milestones: updatedMilestones as any, // Convert to Json for database
+          progress 
+        })
+        .eq('id', goalId);
+
+      if (error) throw error;
+
+      setGoals(prevGoals =>
+        prevGoals.map(g =>
+          g.id === goalId ? { ...g, milestones: updatedMilestones, progress } : g
+        )
+      );
+
+      toast.success('Sub-milestone deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting sub-milestone:', error);
+      toast.error('Failed to delete sub-milestone');
+    }
+  };
+
   // Update calculateProgress to include sub-milestones
   const calculateProgress = async (goalId: string) => {
     try {
@@ -393,7 +447,8 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
     toggleMilestone,
     calculateProgress,
     addSubMilestone,
-    toggleSubMilestone
+    toggleSubMilestone,
+    deleteSubMilestone
   };
 
   return (

@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Goals = () => {
-  const { goals, addGoal, deleteGoal, toggleMilestone, updateGoal, addSubMilestone, toggleSubMilestone } = useGoalContext();
+  const { goals, addGoal, deleteGoal, toggleMilestone, updateGoal, addSubMilestone, toggleSubMilestone, deleteSubMilestone } = useGoalContext();
   const { categories, addCategory } = useTaskContext();
   const isMobile = useIsMobile();
   
@@ -460,6 +460,15 @@ const Goals = () => {
                                     >
                                       {subMilestone.title}
                                     </label>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="ml-2 h-6 w-6 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                                      onClick={() => deleteSubMilestone(goal.id, milestone.id, subMilestone.id)}
+                                      title="Delete sub-milestone"
+                                    >
+                                      <Trash2 size={12} />
+                                    </Button>
                                   </div>
                                 ))}
                               </div>
@@ -607,7 +616,7 @@ const Goals = () => {
                         size="icon"
                         onClick={() => removeMilestoneField(index)}
                         disabled={milestones.length === 1}
-                        className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
                       >
                         <Target size={14} className="rotate-45" />
                       </Button>
