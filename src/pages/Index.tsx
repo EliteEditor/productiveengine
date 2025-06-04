@@ -59,7 +59,7 @@ const Index = () => {
       status: 'pending',
       category: taskCategory,
       description: taskDescription || undefined,
-      dueDate: dueDateString || 'Today',
+      due_date: dueDateString || 'Today',
       priority: taskPriority !== 'none' ? taskPriority : undefined
     });
     

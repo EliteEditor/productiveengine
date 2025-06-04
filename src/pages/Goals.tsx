@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2, Flag, Pencil } from 'lucide-react';
@@ -8,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useGoalContext } from '@/contexts/GoalContext';
+import { useGoalContext, Goal } from '@/contexts/GoalContext';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { toast } from 'sonner';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
