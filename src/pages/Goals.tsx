@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import { Target, Filter, Plus, Calendar as CalendarIcon, Tag, Trash2, Flag, Pencil } from 'lucide-react';
@@ -9,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGoalContext, Goal } from '@/contexts/GoalContext';
 import { useTaskContext } from '@/contexts/TaskContext';
 import { toast } from 'sonner';
@@ -428,6 +428,15 @@ const Goals = () => {
                                 <Plus size={12} className="mr-1" />
                                 Add Sub-milestone
                               </Button>
+                              <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => removeMilestoneField(goal.milestones.findIndex(m => m.id === milestone.id))}
+                                className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
                             </div>
                             
                             {/* Sub-milestones */}
@@ -474,138 +483,140 @@ const Goals = () => {
             <DialogTitle className="dark:text-gray-100">Add New Goal</DialogTitle>
             <DialogDescription className="dark:text-gray-300">Create a new goal with milestones to track your progress</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
-              <Input 
-                id="goal-title" 
-                value={goalTitle} 
-                onChange={(e) => setGoalTitle(e.target.value)} 
-                placeholder="Enter goal title" 
-                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
-                <div className="flex flex-col gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
-                          !deadlineDate && "text-muted-foreground dark:text-gray-400"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={deadlineDate}
-                        onSelect={setDeadlineDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
+                <Input 
+                  id="goal-title" 
+                  value={goalTitle} 
+                  onChange={(e) => setGoalTitle(e.target.value)} 
+                  placeholder="Enter goal title" 
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
+                  <div className="flex flex-col gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+                            !deadlineDate && "text-muted-foreground dark:text-gray-400"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={deadlineDate}
+                          onSelect={setDeadlineDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
+                  <Select value={goalCategory} onValueChange={setGoalCategory}>
+                    <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                      {categories.map(category => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center">
+                            <span 
+                              className="w-2 h-2 rounded-full mr-2"
+                              style={{ backgroundColor: category.color }}
+                            ></span>
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setIsAddGoalOpen(false);
+                      setTimeout(() => setIsAddCategoryOpen(true), 100);
+                    }}
+                    className="mt-1 text-xs dark:border-gray-600 dark:text-gray-200"
+                  >
+                    <Plus size={12} className="mr-1" />
+                    Add New Category
+                  </Button>
                 </div>
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
-                <Select value={goalCategory} onValueChange={setGoalCategory}>
-                  <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
-                    <SelectValue placeholder="Select a category" />
+                <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
+                <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
+                  <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                    <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
                   <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <span 
-                            className="w-2 h-2 rounded-full mr-2"
-                            style={{ backgroundColor: category.color }}
-                          ></span>
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
                   </SelectContent>
                 </Select>
-                
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => {
-                    setIsAddGoalOpen(false);
-                    setTimeout(() => setIsAddCategoryOpen(true), 100);
-                  }}
-                  className="mt-1 text-xs dark:border-gray-600 dark:text-gray-200"
-                >
-                  <Plus size={12} className="mr-1" />
-                  Add New Category
-                </Button>
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
-              <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
-                <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label className="dark:text-gray-200">Milestones</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={addMilestoneField}
-                  className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
-                >
-                  <Plus size={12} className="mr-1" />
-                  Add Milestone
-                </Button>
               </div>
               
-              <div className="space-y-2">
-                {milestones.map((milestone, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input 
-                      value={milestone.title}
-                      onChange={(e) => updateMilestoneTitle(index, e.target.value)}
-                      placeholder={`Milestone ${index + 1}`}
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => removeMilestoneField(index)}
-                      disabled={milestones.length === 1}
-                      className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    >
-                      <Target size={14} className="rotate-45" />
-                    </Button>
-                  </div>
-                ))}
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label className="dark:text-gray-200">Milestones</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={addMilestoneField}
+                    className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
+                  >
+                    <Plus size={12} className="mr-1" />
+                    Add Milestone
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  {milestones.map((milestone, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input 
+                        value={milestone.title}
+                        onChange={(e) => updateMilestoneTitle(index, e.target.value)}
+                        placeholder={`Milestone ${index + 1}`}
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => removeMilestoneField(index)}
+                        disabled={milestones.length === 1}
+                        className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        <Target size={14} className="rotate-45" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddGoalOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
             <Button onClick={handleAddGoal}>Add Goal</Button>
@@ -620,124 +631,126 @@ const Goals = () => {
             <DialogTitle className="dark:text-gray-100">Edit Goal</DialogTitle>
             <DialogDescription className="dark:text-gray-300">Modify your goal and its milestones</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
-              <Input 
-                id="goal-title" 
-                value={goalTitle} 
-                onChange={(e) => setGoalTitle(e.target.value)} 
-                placeholder="Enter goal title" 
-                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
-                <div className="flex flex-col gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
-                          !deadlineDate && "text-muted-foreground dark:text-gray-400"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={deadlineDate}
-                        onSelect={setDeadlineDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <Label htmlFor="goal-title" className="dark:text-gray-200">Goal Title</Label>
+                <Input 
+                  id="goal-title" 
+                  value={goalTitle} 
+                  onChange={(e) => setGoalTitle(e.target.value)} 
+                  placeholder="Enter goal title" 
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="goal-deadline" className="dark:text-gray-200">Deadline</Label>
+                  <div className="flex flex-col gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+                            !deadlineDate && "text-muted-foreground dark:text-gray-400"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {deadlineDate ? format(deadlineDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={deadlineDate}
+                          onSelect={setDeadlineDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
+                  <Select value={goalCategory} onValueChange={setGoalCategory}>
+                    <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                      {categories.map(category => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center">
+                            <span 
+                              className="w-2 h-2 rounded-full mr-2"
+                              style={{ backgroundColor: category.color }}
+                            ></span>
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="goal-category" className="dark:text-gray-200">Category</Label>
-                <Select value={goalCategory} onValueChange={setGoalCategory}>
-                  <SelectTrigger id="goal-category" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
-                    <SelectValue placeholder="Select a category" />
+                <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
+                <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
+                  <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                    <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
                   <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <span 
-                            className="w-2 h-2 rounded-full mr-2"
-                            style={{ backgroundColor: category.color }}
-                          ></span>
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="goal-priority" className="dark:text-gray-200">Priority</Label>
-              <Select value={goalPriority} onValueChange={(value) => setGoalPriority(value as 'high' | 'medium' | 'low' | 'none')}>
-                <SelectTrigger id="goal-priority" className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label className="dark:text-gray-200">Milestones</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={addMilestoneField}
-                  className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
-                >
-                  <Plus size={12} className="mr-1" />
-                  Add Milestone
-                </Button>
-              </div>
               
-              <div className="space-y-2">
-                {milestones.map((milestone, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input 
-                      value={milestone.title}
-                      onChange={(e) => updateMilestoneTitle(index, e.target.value)}
-                      placeholder={`Milestone ${index + 1}`}
-                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => removeMilestoneField(index)}
-                      disabled={milestones.length === 1}
-                      className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                    >
-                      <Target size={14} className="rotate-45" />
-                    </Button>
-                  </div>
-                ))}
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label className="dark:text-gray-200">Milestones</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={addMilestoneField}
+                    className="text-xs h-7 dark:border-gray-600 dark:text-gray-200"
+                  >
+                    <Plus size={12} className="mr-1" />
+                    Add Milestone
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  {milestones.map((milestone, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input 
+                        value={milestone.title}
+                        onChange={(e) => updateMilestoneTitle(index, e.target.value)}
+                        placeholder={`Milestone ${index + 1}`}
+                        className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => removeMilestoneField(index)}
+                        disabled={milestones.length === 1}
+                        className="h-8 w-8 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditGoalOpen(false)} className="dark:border-gray-600 dark:text-gray-200">Cancel</Button>
             <Button onClick={handleEditGoal}>Save Changes</Button>
