@@ -48,10 +48,19 @@ const Index = () => {
       return;
     }
 
-    // Format the due date
-    let dueDateString = taskDueDate;
+    // Format the due date properly
+    let formattedDueDate: string;
+    
     if (dueDate) {
-      dueDateString = format(dueDate, 'PPP');
+      // If a specific date is selected, use it and set to end of day
+      const selectedDate = new Date(dueDate);
+      selectedDate.setHours(23, 59, 59, 999);
+      formattedDueDate = selectedDate.toISOString();
+    } else {
+      // Default to end of today
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      formattedDueDate = today.toISOString();
     }
 
     addTask({
@@ -59,7 +68,7 @@ const Index = () => {
       status: 'pending',
       category: taskCategory,
       description: taskDescription || undefined,
-      due_date: dueDateString || 'Today',
+      due_date: formattedDueDate,
       priority: taskPriority !== 'none' ? taskPriority : undefined
     });
     
@@ -205,7 +214,7 @@ const Index = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                    {dueDate ? format(dueDate, "PPP") : <span>Today (default)</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
