@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,12 +77,23 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          // Type cast the data to match our interface
-          const typedTasks = (userTasks || []).map(task => ({
-            ...task,
+          
+          // Type cast and transform the data to match our interface
+          const typedTasks: Task[] = (userTasks || []).map(task => ({
+            id: task.id,
+            user_id: task.user_id || '',
+            title: task.title,
             status: task.status as TaskStatus,
-            category: task.category as TaskCategory
+            category: task.category || 'personal',
+            due_date: task.due_date || undefined,
+            description: task.description || undefined,
+            priority: (task.priority === 'high' || task.priority === 'medium' || task.priority === 'low') 
+              ? task.priority 
+              : undefined,
+            created_at: task.created_at || new Date().toISOString(),
+            updated_at: task.updated_at || new Date().toISOString()
           }));
+          
           setTasks(typedTasks);
         } else {
           setTasks([]); // Clear tasks if no user
@@ -147,12 +159,22 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       }
 
       if (data) {
-        // Type cast the returned data
+        // Type cast and transform the returned data
         const typedTask: Task = {
-          ...data,
+          id: data.id,
+          user_id: data.user_id || '',
+          title: data.title,
           status: data.status as TaskStatus,
-          category: data.category as TaskCategory
+          category: data.category || 'personal',
+          due_date: data.due_date || undefined,
+          description: data.description || undefined,
+          priority: (data.priority === 'high' || data.priority === 'medium' || data.priority === 'low') 
+            ? data.priority 
+            : undefined,
+          created_at: data.created_at || new Date().toISOString(),
+          updated_at: data.updated_at || new Date().toISOString()
         };
+        
         setTasks(prevTasks => [typedTask, ...prevTasks]);
         toast.success(`Task "${task.title}" added successfully!`);
       }

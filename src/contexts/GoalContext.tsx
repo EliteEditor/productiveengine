@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,6 +47,20 @@ interface GoalProviderProps {
   children: ReactNode;
 }
 
+// Helper function to safely parse milestones from database
+const parseMilestones = (milestones: any): Milestone[] => {
+  if (!milestones) return [];
+  if (Array.isArray(milestones)) {
+    return milestones.map((m: any) => ({
+      id: m.id || `milestone-${Date.now()}`,
+      title: m.title || '',
+      completed: Boolean(m.completed),
+      subMilestones: m.subMilestones ? parseMilestones(m.subMilestones) : undefined
+    }));
+  }
+  return [];
+};
+
 export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
 
@@ -62,11 +77,20 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          // Type cast the data to match our interface
-          const typedGoals = (userGoals || []).map(goal => ({
-            ...goal,
-            milestones: Array.isArray(goal.milestones) ? goal.milestones as Milestone[] : []
+          
+          // Type cast and transform the data to match our interface
+          const typedGoals: Goal[] = (userGoals || []).map(goal => ({
+            id: goal.id,
+            title: goal.title,
+            deadline: goal.deadline || undefined,
+            progress: goal.progress || 0,
+            milestones: parseMilestones(goal.milestones),
+            category: goal.category || undefined,
+            priority: (goal.priority === 'high' || goal.priority === 'medium' || goal.priority === 'low') 
+              ? goal.priority 
+              : undefined
           }));
+          
           setGoals(typedGoals);
         } else {
           setGoals([]); // Clear goals if no user
@@ -104,7 +128,7 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
         title: goal.title,
         deadline: goal.deadline || null,
         progress: goal.progress || 0,
-        milestones: goal.milestones || [],
+        milestones: goal.milestones as any, // Convert to Json for database
         category: goal.category || null,
         priority: goal.priority || null,
         user_id: user.id,
@@ -119,11 +143,19 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
 
       if (error) throw error;
 
-      // Type cast the returned data
+      // Type cast and transform the returned data
       const typedGoal: Goal = {
-        ...data,
-        milestones: Array.isArray(data.milestones) ? data.milestones as Milestone[] : []
+        id: data.id,
+        title: data.title,
+        deadline: data.deadline || undefined,
+        progress: data.progress || 0,
+        milestones: parseMilestones(data.milestones),
+        category: data.category || undefined,
+        priority: (data.priority === 'high' || data.priority === 'medium' || data.priority === 'low') 
+          ? data.priority 
+          : undefined
       };
+      
       setGoals(prevGoals => [...prevGoals, typedGoal]);
       toast.success(`Goal "${goal.title}" added successfully!`);
     } catch (error) {
@@ -137,7 +169,7 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
     try {
       const updateData = {
         ...updatedGoal,
-        milestones: updatedGoal.milestones || undefined
+        milestones: updatedGoal.milestones as any || undefined // Convert to Json for database
       };
 
       const { error } = await supabase
@@ -199,7 +231,7 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
       const { error } = await supabase
         .from('goals')
         .update({ 
-          milestones: updatedMilestones,
+          milestones: updatedMilestones as any, // Convert to Json for database
           progress
         })
         .eq('id', goalId);
@@ -242,7 +274,7 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
 
       const { error } = await supabase
         .from('goals')
-        .update({ milestones: updatedMilestones })
+        .update({ milestones: updatedMilestones as any }) // Convert to Json for database
         .eq('id', goalId);
 
       if (error) throw error;
@@ -296,7 +328,7 @@ export const GoalProvider: React.FC<GoalProviderProps> = ({ children }) => {
       const { error } = await supabase
         .from('goals')
         .update({ 
-          milestones: updatedMilestones,
+          milestones: updatedMilestones as any, // Convert to Json for database
           progress 
         })
         .eq('id', goalId);
